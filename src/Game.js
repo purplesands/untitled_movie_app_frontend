@@ -11,13 +11,13 @@ class Game extends Component {
     answers: {},
     currentQuestion: {},
     currentAnswers: {},
-    // masterUser: '',
-    // users: [],
-    userInput: ''
+    userInput: '',
+    points: 0,
+    timer:10
   }
 
   fetchQuestions = () => {
-    fetch('http://localhost:3000/questions')
+    fetch('https://wicked-panda-94.localtunnel.me/questions')
     .then(r => r.json())
     .then(q => {
       let shuffled = q.map(x => { return {data: x, srt: Math.random()}})
@@ -28,7 +28,7 @@ class Game extends Component {
   }
 
   fetchAnswers = () => {
-    fetch('http://localhost:3000/answers')
+    fetch('https://wicked-panda-94.localtunnel.me/answers')
     .then(r => r.json())
     .then(a => {
       let arr = this.matchAnswers(a, this.state.questions)
@@ -87,21 +87,22 @@ class Game extends Component {
     })
   }
 
-    // takes array of questions
-    // matches questions to answers by id
-    // takes 3 answers per question at random
-    // question: a1, a2, a3
-
-
   componentDidMount = () => {
     this.fetchQuestions()
     this.fetchAnswers()
+  }
+
+  addPoint = () => {
+    let points = 1
+    points++
+    console.log(points)
   }
 
   renderGame = () => {
     if (this.state.currentAnswers.length !== undefined) {
       return (
         <div>
+        <p>{this.state.timer} seconds left</p>
         <Score />
         <QuestionScreen
           currentQuestion={this.state.currentQuestion}
@@ -111,6 +112,7 @@ class Game extends Component {
           currentAnswers={this.state.currentAnswers}
           currentQuestion={this.state.currentQuestion}
           userInput={this.state.userInput}
+          addPoint={this.addPoint}
           />
           </div>
       )

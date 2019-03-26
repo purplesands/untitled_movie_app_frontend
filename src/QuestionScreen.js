@@ -54,7 +54,7 @@ class QuestionScreen extends Component {
     return (
       <div className="QuestionScreen">
         <p>Title: {this.props.currentQuestion.title} </p>
-        <p>Synopsis:{this.props.currentQuestion.synopsis}</p>
+        <p>Synopsis: {this.props.currentQuestion.synopsis}</p>
         <form onSubmit={this.submitInput}>
           Enter Plot Summary: <textarea rows="2" cols="30" type="text" name="input" onChange={(e)=>this.setInput(e)} maxlength="25"/>
           <button type="submit" value="Submit" > Submit </button>

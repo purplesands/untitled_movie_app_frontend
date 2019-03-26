@@ -9,18 +9,28 @@ class AnswerScreen extends Component {
     .map(x => x.data);
     console.log(shuffled)
     return shuffled.map(a=>{
-      return <li>{a.title}</li>
+      return <p><button className="answerButton"
+              value={a.title}
+              onClick={this.checkAnswer}>
+              {a.title}
+              </button> </p>
     })
+  }
 
+  checkAnswer = (e) => {
+    (this.props.currentQuestion.title === e.target.value) ?
+    this.props.addPoint()
+    :
+    console.log('wrong')
   }
 
   render() {
     return (
       <div className="AnswerScreen">
         <ul>
-          Plot Summary:
+          <p>Plot Summary:</p>
           {this.props.userInput}
-          answers:
+          <p>answers:</p>
           {this.renderAnswers()}
         </ul>
       </div>
