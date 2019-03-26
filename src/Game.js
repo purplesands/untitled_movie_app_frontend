@@ -8,7 +8,12 @@ class Game extends Component {
 
   state = {
     questions: [],
-    answers: []
+    answers: {},
+    currentQuestion: {},
+    currentAnswers: {},
+    // masterUser: '',
+    // users: [],
+    userInput: ''
   }
 
   fetchQuestions = () => {
@@ -27,11 +32,9 @@ class Game extends Component {
     .then(r => r.json())
     .then(a => {
       let arr = this.matchAnswers(a, this.state.questions)
-      let shuffled = arr.map(x => { return {data: x, srt: Math.random()}})
-      .sort((a,b) => {return a.srt - b.srt})
-      .map(x => x.data);
-      debugger
-      this.setState({answers: shuffled.slice(0,3)})
+      this.setState({answers: arr},
+        this.setQuestion
+      )
     })
   }
 
@@ -45,16 +48,43 @@ class Game extends Component {
         }
       }
     }
-    // for (var i = 0; i < 3; i++) {
-    //   for (var y = 0; y < questions.length; y++) {
-    //     if (answers[i].question_id === questions[y].id) {
-    //       debugger
-    //       answerSet[questions[y].id] = answers[i]
-    //     }
-    //   }
-    // }
-    debugger
     return answerSet
+  }
+
+  nextRound=()=>{
+    // keeps track of timer, and calls setQuestion and setAnswers at a certain time
+  }
+
+  setQuestion = () => {
+    // takes this.state.questions
+    // removes one question out and sets state of currentQuestion to that question
+    // is called by some kind of timer
+    let questions = [...this.state.questions]
+    let currentQuestion = questions[0]
+    questions.shift()
+    console.log('cq', currentQuestion)
+    this.setState({
+      questions: questions,
+      currentQuestion: currentQuestion
+    }, this.setAnswers)
+  }
+
+  setAnswers = () => {
+    let currentQuestion = this.state.currentQuestion
+    let answers = this.state.answers
+    let shuffled = answers[currentQuestion.id].map(x => { return {data: x, srt: Math.random()}})
+    .sort((a,b) => {return a.srt - b.srt})
+    .map(x => x.data);
+    this.setState({currentAnswers: shuffled.slice(0,3)})
+    // takes this.state.currentQuestion
+    // matches that question with matching answers
+    // takes 3 of those answers at random and assigns to this.state.currentAnswer
+  }
+
+  getUserInput = (input) => {
+    this.setState({
+      userInput:input
+    })
   }
 
     // takes array of questions
@@ -63,21 +93,47 @@ class Game extends Component {
     // question: a1, a2, a3
 
 
-
-
   componentDidMount = () => {
     this.fetchQuestions()
     this.fetchAnswers()
   }
 
+  renderGame = () => {
+    if (this.state.currentAnswers.length !== undefined) {
+      return (
+        <div>
+        <Score />
+        <QuestionScreen
+          currentQuestion={this.state.currentQuestion}
+          getUserInput={this.getUserInput}
+          />
+        <AnswerScreen
+          currentAnswers={this.state.currentAnswers}
+          currentQuestion={this.state.currentQuestion}
+          userInput={this.state.userInput}
+          />
+          </div>
+      )
+    } else {
+      return (
+        <QuestionScreen
+          currentQuestion={this.state.currentQuestion}
+          getUserInput={this.getUserInput}
+          />
+      )
+    }
+  }
+
   render() {
-    console.log(this.state.questions)
-    console.log(this.state.answers)
+    // console.log('questions', this.state.questions)
+    // console.log('answers', this.state.answers)
+    // console.log('current Q', this.state.currentQuestion)
+    // console.log('current As', this.state.currentAnswers)
+
     return (
       <div className="Game">
-        <Score />
-        <QuestionScreen />
-        <AnswerScreen />
+        <button onClick={this.setQuestion}>next Q</button>
+        {this.renderGame()}
       </div>
     );
   }
