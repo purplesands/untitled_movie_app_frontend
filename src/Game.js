@@ -17,7 +17,7 @@ class Game extends Component {
   }
 
 
-  nextRound=()=>{
+  updateScore=()=>{
     // keeps track of timer, and calls setQuestion and setAnswers at a certain time
   }
 
@@ -43,12 +43,9 @@ class Game extends Component {
   }
 
   setQuestion = () => {
-
     let questions = [...this.props.gameQuestions]
-    let currentQuestion = questions[0]
-    questions.shift()
-    console.log(this.props.gameQuestions)
-    console.log('cq', currentQuestion)
+    let currentQuestion = questions.find(q=>{return q.completed===false})
+    debugger
     this.setState({
       gameQuestions: questions,
       currentQuestion: currentQuestion
@@ -69,6 +66,22 @@ class Game extends Component {
     // takes 3 of those answers at random and assigns to this.state.currentAnswer
 }
 
+endTimer=()=>{
+  let newQ = this.state.currentQuestion
+  newQ.completed=true
+  fetch(`http://localhost:3000/game_questions/${this.state.currentQuestion.id}`, {
+    method: 'PATCH',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      completed: true
+    })
+  }).then(r=>r.json())
+  .then(this.setState({currentQuestion: newQ}))
+}
+
   renderGame = () => {
 
     if (this.state.currentAnswers.length === 3) {
@@ -86,6 +99,8 @@ class Game extends Component {
           currentQuestion={this.state.currentQuestion}
           userInput={this.state.userInput}
           addPoint={this.addPoint}
+          updateScore={this.updateScore}
+          endTimer={this.endTimer}
           />
           </div>
         )
@@ -93,6 +108,9 @@ class Game extends Component {
 
   }
 
+  updateScore = (id) => {
+
+  }
 
   render() {
     // console.log('questions', this.state.questions)

@@ -17,13 +17,13 @@ class AnswerScreen extends Component {
     this.setState({
       currentAnswers:shuffled
     })
-debugger
   }
 
   renderAnswers=()=>{
     return this.state.currentAnswers.map(a=>{
       return <p><button className="answerButton"
               value={a.title}
+              id={a.id}
               onClick={this.checkAnswer}>
               {a.title}
               </button> </p>
@@ -32,10 +32,13 @@ debugger
 
 
   checkAnswer = (e) => {
-    (this.props.currentQuestion.question.title === e.target.value) ?
-    console.log('right')
-    :
-    console.log('wrong')
+    if (this.props.currentQuestion.question.title === e.target.value) {
+      console.log('right')
+      debugger
+      this.props.updateScore(this.props.currentQuestion.question_id)
+    } else {
+      console.log('wrong')
+    }
   }
 
   componentDidMount() {
@@ -62,10 +65,12 @@ debugger
       })
     }
 
+
   render() {
     return (
       <div className="AnswerScreen">
         <ul>
+          <button onClick={this.props.endTimer}>end timer</button>
           <p>Plot Summary:</p>
           {this.state.input}
           <p>answers:</p>
