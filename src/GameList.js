@@ -9,7 +9,9 @@ class GameList extends Component {
     answers: {},
     currentQuestion: {},
     currentAnswers: {},
-    currentGame: null
+    currentGame: null,
+    currentUser: 1,
+    gameQuestions: []
   }
 
   startGame=()=>{
@@ -21,13 +23,71 @@ class GameList extends Component {
       },
       body: JSON.stringify({
         game_round: 1,
-        game_status: "in progress"
+        game_status: "pregame"
       })
     }).then(r=>r.json())
     .then(r=>this.setState({
       currentGame: r.id
-    }))
+    }, this.setFirstUser))
   }
+
+  setFirstUser=()=>{
+    this.setGameUser()
+    this.state.questions.map(q => {
+      return this.postGameQuestion(q)
+    })
+  }
+
+  setGameUser=()=>{
+    fetch('http://localhost:3000/game_users', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        game_instance_id: this.state.currentGame,
+        user_id: this.state.currentUser,
+        score: 0
+      })
+    }).then(r=>r.json())
+  }
+
+  postGameQuestion=(question)=>{
+    fetch('http://localhost:3000/game_questions', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        question_id: question.id,
+        game_instance_id: this.state.currentGame,
+        completed: false,
+        input: ''
+      })
+    }).then(r=>r.json())
+    .then(r => {
+      this.setState({gameQuestions: [...this.state.gameQuestions, r]})
+    })
+    // .then(r=>setTimeout(this.getGameQuestions()))
+  }
+
+  // getGameQuestions=()=>{
+  //   fetch('http://localhost:3000/game_questions')
+  //   .then(r => r.json())
+  //   .then(r => {
+  //     this.filterGameQuestions(r)
+  //   })
+  //   .then(console.log)
+  // }
+  //
+  // filterGameQuestions = (arr) => {
+  //   return arr.filter(q=>{
+  //     return q.game_instance_id===this.state.currentGame
+  //   })
+  // }
+
 
   fetchQuestions = () => {
     fetch('http://localhost:3000/questions')
@@ -46,9 +106,7 @@ class GameList extends Component {
     .then(r => r.json())
     .then(a => {
       let arr = this.matchAnswers(a, this.state.questions)
-      this.setState({answers: arr},
-        this.setQuestion
-      )
+      this.setState({answers: arr})
     })
   }
 
@@ -65,34 +123,35 @@ class GameList extends Component {
     return answerSet
   }
 
-  setQuestion = () => {
-    // takes this.state.questions
-    // removes one question out and sets state of currentQuestion to that question
-    // is called by some kind of timer
-    let questions = [...this.state.questions]
-    let currentQuestion = questions[0]
-    questions.shift()
-    console.log(this.state.questions)
-    console.log('cq', currentQuestion)
-    this.setState({
-      questions: questions,
-      currentQuestion: currentQuestion
-    }, this.setAnswers)
-  }
-
-  setAnswers = () => {
-    let currentQuestion = this.state.currentQuestion
-    let answers = this.state.answers
-    let shuffled = answers[currentQuestion.id].map(x => { return {data: x, srt: Math.random()}})
-    .sort((a,b) => {return a.srt - b.srt})
-    .map(x => x.data);
-    console.log('shuffled', shuffled.slice(0,3))
-
-    this.setState({currentAnswers: shuffled.slice(0,3)})
-    // takes this.state.currentQuestion
-    // matches that question with matching answers
-    // takes 3 of those answers at random and assigns to this.state.currentAnswer
-  }
+  // setQuestion = () => {
+  //   // takes this.state.questions
+  //   // removes one question out and sets state of currentQuestion to that question
+  //   // is called by some kind of timer
+  //   // let questions = [...this.state.questions]
+  //   let questions = [...this.state.questions]
+  //   let currentQuestion = questions[0]
+  //   questions.shift()
+  //   console.log(this.state.questions)
+  //   console.log('cq', currentQuestion)
+  //   this.setState({
+  //     questions: questions,
+  //     currentQuestion: currentQuestion
+  //   }, this.setAnswers)
+  // }
+  //
+  // setAnswers = () => {
+  //   let currentQuestion = this.state.currentQuestion
+  //   let answers = this.state.answers
+  //   let shuffled = answers[currentQuestion.id].map(x => { return {data: x, srt: Math.random()}})
+  //   .sort((a,b) => {return a.srt - b.srt})
+  //   .map(x => x.data);
+  //   console.log('shuffled', shuffled.slice(0,3))
+  //
+  //   this.setState({currentAnswers: shuffled.slice(0,3)})
+  //   // takes this.state.currentQuestion
+  //   // matches that question with matching answers
+  //   // takes 3 of those answers at random and assigns to this.state.currentAnswer
+  // }
 
   componentDidMount=()=>{
     this.fetchQuestions()
@@ -102,8 +161,10 @@ class GameList extends Component {
     if (this.state.currentGame) {
       return (
         <Game
-        questions={this.state.questions}
-        answers={this.state.answers}
+        currentGame={this.state.currentGame}
+        gameQuestions={this.state.gameQuestions}
+        // questions={this.state.questions}
+        // answers={this.state.answers}
         currentQuestion={this.state.currentQuestion}
         currentAnswers={this.state.currentAnswers}
         setQuestion={this.setQuestion}

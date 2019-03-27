@@ -7,117 +7,92 @@ import Score from './Score';
 class Game extends Component {
 
   state = {
-    // questions: [],
-    // answers: {},
-    // currentQuestion: {},
-    // currentAnswers: {},
     round: 1,
     userInput: '',
-    timer:10
+    timer:10,
+    gameQuestions:[],
+    currentQuestion: {},
+    currentAnswers: {},
+    loaded: false
   }
 
-  // fetchQuestions = () => {
-  //   fetch('http://localhost:3000/questions')
-  //   .then(r => r.json())
-  //   .then(q => {
-  //     let shuffled = q.map(x => { return {data: x, srt: Math.random()}})
-  //     .sort((a,b) => {return a.srt - b.srt})
-  //     .map(x => x.data);
-  //     this.setState({questions: shuffled.slice(0,10)})
-  //   })
-  // }
-  //
-  // fetchAnswers = () => {
-  //   fetch('http://localhost:3000/answers')
-  //   .then(r => r.json())
-  //   .then(a => {
-  //     let arr = this.matchAnswers(a, this.state.questions)
-  //     this.setState({answers: arr},
-  //       this.setQuestion
-  //     )
-  //   })
-  // }
-
-  // matchAnswers = (answers, questions) => {
-  //   let answerSet = {}
-  //   for (var i = 0; i < questions.length; i++) {
-  //     answerSet[questions[i].id] = []
-  //     for (var y = 0; y < answers.length; y++) {
-  //       if (answers[y].question_id === questions[i].id) {
-  //         answerSet[questions[i].id].push(answers[y])
-  //       }
-  //     }
-  //   }
-  //   return answerSet
-  // }
 
   nextRound=()=>{
     // keeps track of timer, and calls setQuestion and setAnswers at a certain time
   }
 
-  // setQuestion = () => {
-  //   // takes this.state.questions
-  //   // removes one question out and sets state of currentQuestion to that question
-  //   // is called by some kind of timer
-  //   let questions = [...this.state.questions]
-  //   let currentQuestion = questions[0]
-  //   questions.shift()
-  //   console.log('cq', currentQuestion)
-  //   this.setState({
-  //     questions: questions,
-  //     currentQuestion: currentQuestion
-  //   }, this.setAnswers)
-  // }
 
-  // setAnswers = () => {
-  //   let currentQuestion = this.state.currentQuestion
-  //   let answers = this.state.answers
-  //   let shuffled = answers[currentQuestion.id].map(x => { return {data: x, srt: Math.random()}})
-  //   .sort((a,b) => {return a.srt - b.srt})
-  //   .map(x => x.data);
-  //   this.setState({currentAnswers: shuffled.slice(0,3)})
-  //   // takes this.state.currentQuestion
-  //   // matches that question with matching answers
-  //   // takes 3 of those answers at random and assigns to this.state.currentAnswer
-  // }
 
   getUserInput = (input) => {
     this.setState({
       userInput:input
     })
+    fetch(`http://localhost:3000/game_questions/${this.state.currentQuestion.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        input: input
+      })
+    }).then(r=>r.json())
   }
 
   componentDidMount = () => {
   }
 
+  setQuestion = () => {
+
+    let questions = [...this.props.gameQuestions]
+    let currentQuestion = questions[0]
+    questions.shift()
+    console.log(this.props.gameQuestions)
+    console.log('cq', currentQuestion)
+    this.setState({
+      gameQuestions: questions,
+      currentQuestion: currentQuestion
+    }, this.setAnswers)
+  }
+
+  setAnswers = () => {
+    let currentQuestion = this.state.currentQuestion
+    let shuffled = currentQuestion.answers.map(x => { return {data: x, srt: Math.random()}})
+    .sort((a,b) => {return a.srt - b.srt})
+    .map(x => x.data);
+    console.log('shuffled', shuffled.slice(0,3))
+    this.setState({
+      currentAnswers: shuffled.slice(0,3),
+    })
+    // takes this.state.currentQuestion
+    // matches that question with matching answers
+    // takes 3 of those answers at random and assigns to this.state.currentAnswer
+}
 
   renderGame = () => {
-    if (this.props.currentAnswers.length !== undefined) {
+
+    if (this.state.currentAnswers.length === 3) {
+      // debugger
       return (
         <div>
         <p>{this.state.timer} seconds left</p>
         <Score />
         <QuestionScreen
-          currentQuestion={this.props.currentQuestion}
+          currentQuestion={this.state.currentQuestion}
           getUserInput={this.getUserInput}
           />
         <AnswerScreen
-          currentAnswers={this.props.currentAnswers}
-          currentQuestion={this.props.currentQuestion}
+          currentAnswers={this.state.currentAnswers}
+          currentQuestion={this.state.currentQuestion}
           userInput={this.state.userInput}
           addPoint={this.addPoint}
           />
           </div>
-      )
-    } else {
-      return (
-        <QuestionScreen
-          currentQuestion={this.props.currentQuestion}
-          getUserInput={this.getUserInput}
-          />
-      )
+        )
     }
+
   }
+
 
   render() {
     // console.log('questions', this.state.questions)
@@ -127,8 +102,8 @@ class Game extends Component {
 
     return (
       <div className="Game">
-        <button onClick={this.props.setQuestion}>next Q</button>
-        {this.renderGame()}
+        <button onClick={this.setQuestion}>begin</button>
+         {this.renderGame()}
       </div>
     );
   }
