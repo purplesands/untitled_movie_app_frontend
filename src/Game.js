@@ -122,9 +122,11 @@ class Game extends Component {
     .then(r => {
       console.log("game end", r)
     })
+    this.props.reset()
   }
 
   updateScore = (id) => {
+
     let that = this
     fetch(`http://localhost:3000/game_users/${that.props.currentUser.id}`, {
       method: 'PATCH',
