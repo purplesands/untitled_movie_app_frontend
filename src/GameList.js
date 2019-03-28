@@ -73,22 +73,6 @@ class GameList extends Component {
     // .then(r=>setTimeout(this.getGameQuestions()))
   }
 
-  // getGameQuestions=()=>{
-  //   fetch('http://localhost:3000/game_questions')
-  //   .then(r => r.json())
-  //   .then(r => {
-  //     this.filterGameQuestions(r)
-  //   })
-  //   .then(console.log)
-  // }
-  //
-  // filterGameQuestions = (arr) => {
-  //   return arr.filter(q=>{
-  //     return q.game_instance_id===this.state.currentGame
-  //   })
-  // }
-
-
   fetchQuestions = () => {
     fetch('http://localhost:3000/questions')
     .then(r => r.json())
@@ -123,35 +107,6 @@ class GameList extends Component {
     return answerSet
   }
 
-  // setQuestion = () => {
-  //   // takes this.state.questions
-  //   // removes one question out and sets state of currentQuestion to that question
-  //   // is called by some kind of timer
-  //   // let questions = [...this.state.questions]
-  //   let questions = [...this.state.questions]
-  //   let currentQuestion = questions[0]
-  //   questions.shift()
-  //   console.log(this.state.questions)
-  //   console.log('cq', currentQuestion)
-  //   this.setState({
-  //     questions: questions,
-  //     currentQuestion: currentQuestion
-  //   }, this.setAnswers)
-  // }
-  //
-  // setAnswers = () => {
-  //   let currentQuestion = this.state.currentQuestion
-  //   let answers = this.state.answers
-  //   let shuffled = answers[currentQuestion.id].map(x => { return {data: x, srt: Math.random()}})
-  //   .sort((a,b) => {return a.srt - b.srt})
-  //   .map(x => x.data);
-  //   console.log('shuffled', shuffled.slice(0,3))
-  //
-  //   this.setState({currentAnswers: shuffled.slice(0,3)})
-  //   // takes this.state.currentQuestion
-  //   // matches that question with matching answers
-  //   // takes 3 of those answers at random and assigns to this.state.currentAnswer
-  // }
 
   componentDidMount=()=>{
     this.fetchQuestions()

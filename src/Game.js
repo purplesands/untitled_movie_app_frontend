@@ -13,15 +13,10 @@ class Game extends Component {
     gameQuestions:[],
     currentQuestion: {},
     currentAnswers: {},
-    loaded: false
+    loaded: false,
+    currentGame: {},
+    answer_user: {}
   }
-
-
-  updateScore=()=>{
-    // keeps track of timer, and calls setQuestion and setAnswers at a certain time
-  }
-
-
 
   getUserInput = (input) => {
     this.setState({
@@ -40,12 +35,12 @@ class Game extends Component {
   }
 
   componentDidMount = () => {
+    this.setState({currentGame: this.props.currentGame})
   }
 
   setQuestion = () => {
     let questions = [...this.props.gameQuestions]
     let currentQuestion = questions.find(q=>{return q.completed===false})
-    debugger
     this.setState({
       gameQuestions: questions,
       currentQuestion: currentQuestion
@@ -66,24 +61,86 @@ class Game extends Component {
     // takes 3 of those answers at random and assigns to this.state.currentAnswer
 }
 
-endTimer=()=>{
-  let newQ = this.state.currentQuestion
-  newQ.completed=true
-  fetch(`http://localhost:3000/game_questions/${this.state.currentQuestion.id}`, {
-    method: 'PATCH',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      completed: true
+  endTimer=()=>{
+    let newQ = this.state.currentQuestion
+    newQ.completed=true
+    fetch(`http://localhost:3000/game_questions/${this.state.currentQuestion.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        completed: true
+      })
+    }).then(r=>r.json())
+    .then(r => {
+      this.setState({currentQuestion: newQ, round: this.state.round += 1})
+      this.completeRound()
     })
-  }).then(r=>r.json())
-  .then(this.setState({currentQuestion: newQ}))
-}
+  }
+
+  completeRound = () => {
+    let gameStatus = "in progress"
+    if (this.state.round === 10) {
+      gameStatus = "complete"
+    }
+    if (this.state.round <= 10) {
+      fetch(`http://localhost:3000/game_instances/${this.state.currentGame}`, {
+        method: 'PATCH',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          game_round: this.state.round,
+          game_status: gameStatus
+        })
+      }).then(r=>r.json())
+      .then(r => {
+        console.log("round end", r)
+        this.setQuestion()
+      })
+    } else {
+      this.endGame()
+    }
+  }
+
+  endGame = () => {
+    fetch(`http://localhost:3000/game_instances/${this.state.currentGame}`, {
+      method: 'PATCH',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        game_round: 10,
+        game_status: "complete"
+      })
+    }).then(r=>r.json())
+    .then(r => {
+      console.log("game end", r)
+    })
+  }
+
+  updateScore = (id) => {
+    let that = this
+    fetch(`http://localhost:3000/game_users/${that.props.currentGame}`, {
+      method: 'PATCH',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        score: 10
+      })
+    }).then(r=>r.json())
+    .then(r => {
+      this.setState({answer_user: r})
+    })
+  }
 
   renderGame = () => {
-
     if (this.state.currentAnswers.length === 3) {
       // debugger
       return (
@@ -105,17 +162,11 @@ endTimer=()=>{
           </div>
         )
     }
-
-  }
-
-  updateScore = (id) => {
-
   }
 
   render() {
     // console.log('questions', this.state.questions)
     // console.log('answers', this.state.answers)
-    // console.log('current Q', this.state.currentQuestion)
     // console.log('current As', this.state.currentAnswers)
 
     return (

@@ -10,6 +10,7 @@ class AnswerScreen extends Component {
 
   setAnswers=()=> {
     let answers = [...this.props.currentAnswers, this.props.currentQuestion.question]
+    debugger
     let shuffled = answers.map(x => { return {data: x, srt: Math.random()}})
     .sort((a,b) => {return a.srt - b.srt})
     .map(x => x.data);
@@ -34,7 +35,6 @@ class AnswerScreen extends Component {
   checkAnswer = (e) => {
     if (this.props.currentQuestion.question.title === e.target.value) {
       console.log('right')
-      debugger
       this.props.updateScore(this.props.currentQuestion.question_id)
     } else {
       console.log('wrong')
@@ -70,7 +70,7 @@ class AnswerScreen extends Component {
     return (
       <div className="AnswerScreen">
         <ul>
-          <button onClick={this.props.endTimer}>end timer</button>
+          <button onClick={this.props.endTimer}>End Round</button>
           <p>Plot Summary:</p>
           {this.state.input}
           <p>answers:</p>
