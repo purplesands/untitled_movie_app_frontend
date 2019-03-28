@@ -24,7 +24,7 @@ class App extends Component {
   }
 
   renderPages = () => {
-    if (this.state.user != "") {
+    if (this.state.user !== "") {
       return <MainMenu user={this.state.user}/>
     } else {
       return <Login getUser={this.getUser}/>

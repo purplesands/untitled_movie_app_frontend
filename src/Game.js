@@ -15,7 +15,8 @@ class Game extends Component {
     currentAnswers: {},
     loaded: false,
     currentGame: {},
-    answer_user: {}
+    answer_user: {},
+    scoreboard: {}
   }
 
   getUserInput = (input) => {
@@ -126,6 +127,8 @@ class Game extends Component {
 
   updateScore = (id) => {
     let that = this
+    let newScoreboard = this.state.scoreboard
+    newScoreboard[that.props.currentUser.id] = this.props.currentUser.score += 10
     fetch(`http://localhost:3000/game_users/${that.props.currentUser.id}`, {
       method: 'PATCH',
       headers: {
@@ -137,7 +140,7 @@ class Game extends Component {
       })
     }).then(r=>r.json())
     .then(r => {
-      this.setState({answer_user: r})
+      this.setState({answer_user: r, scoreboard: newScoreboard})
     })
   }
 
@@ -145,27 +148,28 @@ class Game extends Component {
     if (this.state.currentAnswers.length === 3) {
       return (
         <div>
-        <p>{this.state.timer} seconds left</p>
-        <Score />
-        <QuestionScreen
-          currentQuestion={this.state.currentQuestion}
-          getUserInput={this.getUserInput}
+          <p>{this.state.timer} seconds left</p>
+          <Score />
+          <QuestionScreen
+            currentQuestion={this.state.currentQuestion}
+            getUserInput={this.getUserInput}
+            />
+          <AnswerScreen
+            currentAnswers={this.state.currentAnswers}
+            currentQuestion={this.state.currentQuestion}
+            userInput={this.state.userInput}
+            addPoint={this.addPoint}
+            updateScore={this.updateScore}
+            endTimer={this.endTimer}
           />
-        <AnswerScreen
-          currentAnswers={this.state.currentAnswers}
-          currentQuestion={this.state.currentQuestion}
-          userInput={this.state.userInput}
-          addPoint={this.addPoint}
-          updateScore={this.updateScore}
-          endTimer={this.endTimer}
-          />
-          </div>
+        </div>
         )
     }
   }
 
   render() {
     // console.log('questions', this.state.questions)
+    console.log('scoreboard', this.state.scoreboard)
     // console.log('answers', this.state.answers)
     // console.log('current As', this.state.currentAnswers)
 
