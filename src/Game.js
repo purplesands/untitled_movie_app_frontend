@@ -96,10 +96,10 @@ class Game extends Component {
 
   completeRound = () => {
     let gameStatus = "in progress"
-    if (this.state.round === 2) {
+    if (this.state.round === 5) {
       gameStatus = "complete"
     }
-    if (this.state.round <= 2) {
+    if (this.state.round <= 5) {
       fetch(`http://localhost:3000//game_instances/${this.state.currentGame}`, {
         method: 'PATCH',
         headers: {
