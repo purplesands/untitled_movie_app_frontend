@@ -16,13 +16,21 @@ class Game extends Component {
     currentGame: {},
     answer_user: {},
     scoreboard: {},
+    clicked: false,
+    answered: false
+  }
+
+  answered = () => {
+    
+    this.setState({answered: !this.state.answered})
   }
 
   getUserInput = (input) => {
     this.setState({
-      userInput:input
+      userInput:input,
+      clicked: !this.state.clicked
     })
-    fetch(`https://purple-deer-71.localtunnel.me/game_questions/${this.state.currentQuestion.id}`, {
+    fetch(`http://localhost:3000//game_questions/${this.state.currentQuestion.id}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',
@@ -32,6 +40,9 @@ class Game extends Component {
         input: input
       })
     }).then(r=>r.json())
+    .then(r => {
+      this.setQuestion()
+    })
   }
 
   componentDidMount = () => {
@@ -48,7 +59,9 @@ class Game extends Component {
   }
 
   setAnswers = () => {
+    // debugger
     let currentQuestion = {...this.state.currentQuestion}
+    // debugger
     let shuffled = currentQuestion.answers.map(x => { return {data: x, srt: Math.random()}})
     .sort((a,b) => {return a.srt - b.srt})
     .map(x => x.data);
@@ -64,7 +77,7 @@ class Game extends Component {
   endTimer=()=>{
     let newQ = this.state.currentQuestion
     newQ.completed=true
-    fetch(`https://purple-deer-71.localtunnel.me/game_questions/${this.state.currentQuestion.id}`, {
+    fetch(`http://localhost:3000//game_questions/${this.state.currentQuestion.id}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',
@@ -75,7 +88,8 @@ class Game extends Component {
       })
     }).then(r=>r.json())
     .then(r => {
-      this.setState({currentQuestion: newQ, round: this.state.round += 1},
+      this.setState({currentQuestion: newQ, round: this.state.round += 1,
+      clicked: !this.state.clicked},
       this.completeRound())
       // blah
     })
@@ -87,7 +101,7 @@ class Game extends Component {
       gameStatus = "complete"
     }
     if (this.state.round <= 10) {
-      fetch(`https://purple-deer-71.localtunnel.me/game_instances/${this.state.currentGame}`, {
+      fetch(`http://localhost:3000//game_instances/${this.state.currentGame}`, {
         method: 'PATCH',
         headers: {
           'Accept': 'application/json',
@@ -108,7 +122,7 @@ class Game extends Component {
   }
 
   endGame = () => {
-    fetch(`https://purple-deer-71.localtunnel.me/game_instances/${this.state.currentGame}`, {
+    fetch(`http://localhost:3000//game_instances/${this.state.currentGame}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',
@@ -129,7 +143,7 @@ class Game extends Component {
       let that = this
       let newScoreboard = this.state.scoreboard
       newScoreboard[that.props.currentUser.id] = this.props.currentUser.score += 10
-      fetch(`https://purple-deer-71.localtunnel.me/game_users/${that.props.currentUser.id}`, {
+      fetch(`http://localhost:3000//game_users/${that.props.currentUser.id}`, {
         method: 'PATCH',
         headers: {
           'Accept': 'application/json',
@@ -152,6 +166,7 @@ class Game extends Component {
         <QuestionScreen
           currentQuestion={this.state.currentQuestion}
           getUserInput={this.getUserInput}
+          clicked={this.state.clicked}
           />
         </div>
       )
@@ -169,13 +184,25 @@ class Game extends Component {
           updateScore={this.updateScore}
           endTimer={this.endTimer}
           round={this.state.round}
+          answered={this.answered}
+          answerState={this.state.answered}
           />
         </div>
       )
     }
 
   renderGame = () => {
+    // if (this.state.userInput != '' && this.state.currentAnswers.length === 3) {
+    //   debugger
+    //   // return (
+    //   //   <div>
+    //   //     <Score />
+    //   //     {this.renderAnswerScreen()}
+    //   //   </div>
+    //   // )
+    // }
     if (this.state.currentAnswers.length === 3) {
+      // debugger
       return (
         <div>
           <Score />
@@ -187,6 +214,7 @@ class Game extends Component {
   }
 
   render() {
+    console.log("input ", this.state.userInput);
     // console.log('questions', this.state.questions)
     // console.log('answers', this.state.answers)
     // console.log('current As', this.state.currentAnswers)

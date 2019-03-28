@@ -32,7 +32,7 @@ class GameList extends Component {
   }
 
   startGame=()=>{
-    fetch('https://purple-deer-71.localtunnel.me/game_instances', {
+    fetch('http://localhost:3000//game_instances', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -57,10 +57,9 @@ class GameList extends Component {
   }
 
   setGameUser=()=>{
-    debugger
     // let currentUsers = this.state.currentUsers
     // currentUsers = {...this.state.currentUsers, this.props.currentUser}
-    fetch('https://purple-deer-71.localtunnel.me/game_users', {
+    fetch('http://localhost:3000//game_users', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -79,7 +78,7 @@ class GameList extends Component {
   }
 
   postGameQuestion=(question)=>{
-    fetch('https://purple-deer-71.localtunnel.me/game_questions', {
+    fetch('http://localhost:3000//game_questions', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -99,7 +98,7 @@ class GameList extends Component {
   }
 
   fetchQuestions = () => {
-    fetch('https://purple-deer-71.localtunnel.me/questions')
+    fetch('http://localhost:3000//questions')
     .then(r => r.json())
     .then(q => {
       let shuffled = q.map(x => { return {data: x, srt: Math.random()}})
@@ -111,7 +110,7 @@ class GameList extends Component {
   }
 
   fetchAnswers = () => {
-    fetch('https://purple-deer-71.localtunnel.me/answers')
+    fetch('http://localhost:3000//answers')
     .then(r => r.json())
     .then(a => {
       let arr = this.matchAnswers(a, this.state.questions)
@@ -145,7 +144,7 @@ class GameList extends Component {
 
 
   checkNewGame=()=>{
-    fetch('https://purple-deer-71.localtunnel.me/game_instances')
+    fetch('http://localhost:3000//game_instances')
     .then(r=>r.json())
     .then(r=>{this.checkGameProgress(r)})
   }

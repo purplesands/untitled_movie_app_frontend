@@ -21,6 +21,13 @@ class AnswerScreen extends Component {
     })
   }
 
+  handleColor = () => {
+    if (this.props.answerState === true) {
+      return ""
+    }
+  }
+
+
   renderAnswers=()=>{
     return this.state.currentAnswers.map(a=>{
       return <p><button className="answerButton"
@@ -32,13 +39,34 @@ class AnswerScreen extends Component {
     })
   }
 
+  // renderCorrectOrWrong=()=>{
+  //   if (this.props.answered === true) {
+  //     return (
+  //       <div>
+  //         <p>RIGHT</p>
+  //       </div>
+  //     )
+  //   } else {
+  //     return null
+  //   }
+  //
+  // }
+
 
   checkAnswer = (e) => {
-    if (this.props.currentQuestion.question.title === e.target.value) {
+    // e.target.style.backgroundColor = "white"
+    if (this.props.answerState === false && this.props.currentQuestion.question.title === e.target.value) {
       console.log('right')
+      // e.target.style.backgroundColor = "green"
+      this.props.answered()
+      alert("correct!")
+
       this.props.updateScore(this.props.currentQuestion.question_id)
-    } else {
+    } else if (this.props.answerState === false && this.props.currentQuestion.question.title !== e.target.value) {
+      // e.target.style.backgroundColor = "red"
+      this.props.answered()
       console.log('wrong')
+      alert("wrong!")
     }
   }
 
@@ -46,9 +74,11 @@ class AnswerScreen extends Component {
     // Call this function so that it fetch first time right after mounting the component
     this.fetchInput();
     this.setAnswers();
+    this.props.answered()
+
 
     // set Interval
-    this.interval = setInterval(this.fetchInput, 2000);
+    this.interval = setInterval(this.fetchInput, 1000);
     this.interval = setInterval(this.checkRound, 1000);
 
 }
@@ -64,7 +94,7 @@ class AnswerScreen extends Component {
   }
 
   fetchInput = () => {
-      fetch(`https://purple-deer-71.localtunnel.me/game_questions/${this.props.currentQuestion.id}`)
+      fetch(`http://localhost:3000//game_questions/${this.props.currentQuestion.id}`)
       .then(r=>r.json())
       .then(r=>{
         this.setState({

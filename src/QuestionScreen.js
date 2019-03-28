@@ -48,18 +48,31 @@ class QuestionScreen extends Component {
     }
   }
 
+  renderScreen = () => {
+    if (this.props.clicked === false) {
+      return (
+        <div>
+          <p>Title: {this.props.currentQuestion.question.title} </p>
+          <p>Synopsis: {this.props.currentQuestion.question.synopsis}</p>
+          <form onSubmit={this.submitInput}>
+            Enter Plot Summary: <textarea rows="2" cols="30" type="text" name="input" onChange={(e)=>this.setInput(e)} maxlength="25"/>
+            <button type="submit" value="Submit" > Submit </button>
+          </form>
+        </div>
+      )
+    } else {
+      return null
+    }
+
+  }
+
 
   render() {
 
     console.log("q props: ", this.props);
     return (
       <div className="QuestionScreen">
-        <p>Title: {this.props.currentQuestion.question.title} </p>
-        <p>Synopsis: {this.props.currentQuestion.question.synopsis}</p>
-        <form onSubmit={this.submitInput}>
-          Enter Plot Summary: <textarea rows="2" cols="30" type="text" name="input" onChange={(e)=>this.setInput(e)} maxlength="25"/>
-          <button type="submit" value="Submit" > Submit </button>
-        </form>
+        {this.renderScreen()}
       </div>
     );
   }
