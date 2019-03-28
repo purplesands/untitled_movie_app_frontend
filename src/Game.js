@@ -52,7 +52,7 @@ class Game extends Component {
     let shuffled = currentQuestion.answers.map(x => { return {data: x, srt: Math.random()}})
     .sort((a,b) => {return a.srt - b.srt})
     .map(x => x.data);
-    // debugger
+    debugger
     this.setState({
       currentAnswers: shuffled.slice(0,3),
     })
