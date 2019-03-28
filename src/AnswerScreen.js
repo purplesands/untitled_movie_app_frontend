@@ -27,18 +27,6 @@ class AnswerScreen extends Component {
     }
   }
 
-
-  renderAnswers=()=>{
-    return this.state.currentAnswers.map(a=>{
-      return <p><button className="answerButton"
-              value={a.title}
-              id={a.id}
-              onClick={this.checkAnswer}>
-              {a.title}
-              </button> </p>
-    })
-  }
-
   // renderCorrectOrWrong=()=>{
   //   if (this.props.answered === true) {
   //     return (
@@ -60,7 +48,6 @@ class AnswerScreen extends Component {
       // e.target.style.backgroundColor = "green"
       this.props.answered()
       alert("correct!")
-
       this.props.updateScore(this.props.currentQuestion.question_id)
     } else if (this.props.answerState === false && this.props.currentQuestion.question.title !== e.target.value) {
       // e.target.style.backgroundColor = "red"
@@ -74,7 +61,6 @@ class AnswerScreen extends Component {
     // Call this function so that it fetch first time right after mounting the component
     this.fetchInput();
     this.setAnswers();
-    this.props.answered()
 
 
     // set Interval
@@ -102,6 +88,18 @@ class AnswerScreen extends Component {
         })
       })
     }
+
+
+  renderAnswers=()=>{
+    return this.state.currentAnswers.map(a=>{
+      return <p><button className="answerButton"
+              value={a.title}
+              id={a.id}
+              onClick={this.checkAnswer}>
+              {a.title}
+              </button> </p>
+    })
+  }
 
 
   render() {

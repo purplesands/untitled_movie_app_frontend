@@ -21,7 +21,6 @@ class Game extends Component {
   }
 
   answered = () => {
-    
     this.setState({answered: !this.state.answered})
   }
 
