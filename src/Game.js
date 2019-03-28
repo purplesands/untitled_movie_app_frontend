@@ -53,7 +53,7 @@ class Game extends Component {
     let shuffled = currentQuestion.answers.map(x => { return {data: x, srt: Math.random()}})
     .sort((a,b) => {return a.srt - b.srt})
     .map(x => x.data);
-    debugger
+    
     this.setState({
       currentAnswers: shuffled.slice(0,3),
     })
@@ -127,24 +127,53 @@ class Game extends Component {
   }
 
   updateScore = (id) => {
-
-    let that = this
-    let newScoreboard = this.state.scoreboard
-    newScoreboard[that.props.currentUser.id] = this.props.currentUser.score += 10
-    fetch(`http://localhost:3000/game_users/${that.props.currentUser.id}`, {
-      method: 'PATCH',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        score: this.props.currentUser.score += 10
+      let that = this
+      let newScoreboard = this.state.scoreboard
+      newScoreboard[that.props.currentUser.id] = this.props.currentUser.score += 10
+      fetch(`http://localhost:3000/game_users/${that.props.currentUser.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          score: this.props.currentUser.score
+        })
+      }).then(r=>r.json())
+      .then(r => {
+        this.setState({answer_user: r, scoreboard: newScoreboard})
       })
-    }).then(r=>r.json())
-    .then(r => {
-      this.setState({answer_user: r, scoreboard: newScoreboard})
-    })
-  }
+    }
+
+    renderQuestionScreen = () => {
+      return (
+        <div>
+        <p>{this.state.timer} seconds left</p>
+        <Score />
+        <QuestionScreen
+          currentQuestion={this.state.currentQuestion}
+          getUserInput={this.getUserInput}
+          />
+        </div>
+      )
+    }
+
+    renderAnswerScreen = () => {
+      return (
+        <div>
+        <p>{this.state.timer} seconds left</p>
+        <AnswerScreen
+          currentAnswers={this.state.currentAnswers}
+          currentQuestion={this.state.currentQuestion}
+          userInput={this.state.userInput}
+          addPoint={this.addPoint}
+          updateScore={this.updateScore}
+          endTimer={this.endTimer}
+          round={this.state.round}
+          />
+        </div>
+      )
+    }
 
   renderGame = () => {
     if (this.state.currentAnswers.length === 3) {
@@ -152,28 +181,18 @@ class Game extends Component {
         <div>
           <p>{this.state.timer} seconds left</p>
           <Score />
-          <QuestionScreen
-            currentQuestion={this.state.currentQuestion}
-            getUserInput={this.getUserInput}
-            />
-          <AnswerScreen
-            currentAnswers={this.state.currentAnswers}
-            currentQuestion={this.state.currentQuestion}
-            userInput={this.state.userInput}
-            addPoint={this.addPoint}
-            updateScore={this.updateScore}
-            endTimer={this.endTimer}
-          />
+          {this.renderQuestionScreen()}
+          {this.renderAnswerScreen()}
         </div>
-        )
+      )
     }
   }
 
   render() {
     // console.log('questions', this.state.questions)
-    console.log('scoreboard', this.state.scoreboard)
     // console.log('answers', this.state.answers)
     // console.log('current As', this.state.currentAnswers)
+    console.log('scoreboard', this.state.scoreboard)
 
     return (
       <div className="Game">
