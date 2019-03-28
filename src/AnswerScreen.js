@@ -21,11 +21,11 @@ class AnswerScreen extends Component {
     })
   }
 
-  handleColor = () => {
-    if (this.props.answerState === true) {
-      return ""
-    }
-  }
+  // handleColor = () => {
+  //   if (this.props.answerState === true) {
+  //     return ""
+  //   }
+  // }
 
   // renderCorrectOrWrong=()=>{
   //   if (this.props.answered === true) {

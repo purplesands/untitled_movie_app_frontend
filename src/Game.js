@@ -17,7 +17,8 @@ class Game extends Component {
     answer_user: {},
     scoreboard: {},
     clicked: false,
-    answered: false
+    answered: false,
+    gameOver: false
   }
 
   answered = () => {
@@ -89,7 +90,7 @@ class Game extends Component {
     .then(r => {
       this.setState({currentQuestion: newQ, round: this.state.round += 1,
       clicked: !this.state.clicked},
-      this.completeRound())
+      this.completeRound)
       // blah
     })
   }
@@ -114,6 +115,7 @@ class Game extends Component {
       .then(r => {
         console.log("round end", r)
         this.setQuestion()
+        this.answered()
       })
     } else {
       this.endGame()
@@ -133,9 +135,10 @@ class Game extends Component {
       })
     }).then(r=>r.json())
     .then(r => {
+      this.setState({gameOver: true})
       console.log("game end", r)
     })
-    this.props.reset()
+    // this.props.reset()
   }
 
   updateScore = (id) => {
@@ -212,6 +215,17 @@ class Game extends Component {
     }
   }
 
+  renderGameOver = () => {
+    if (this.state.gameOver === true) {
+      return (
+        <div>
+          <p> Score </p>
+          {this.state.scoreboard}
+        </div>
+      )
+    }
+  }
+
   render() {
     console.log("input ", this.state.userInput);
     // console.log('questions', this.state.questions)
@@ -223,6 +237,7 @@ class Game extends Component {
       <div className="Game">
         <button onClick={this.setQuestion}>begin</button>
          {this.renderGame()}
+         {this.renderGameOver()}
       </div>
     );
   }
