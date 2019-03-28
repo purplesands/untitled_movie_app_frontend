@@ -24,7 +24,7 @@ class GameList extends Component {
       currentUser: 1,
       gameQuestions: []
     },this.fetchQuestions())
-    
+
   }
 
   startGame=()=>{
@@ -64,13 +64,10 @@ class GameList extends Component {
         score: 0
       })
     }).then(r=>r.json())
-<<<<<<< HEAD
     .then(r => {
       this.setState({currentUser: r})
     })
-=======
     .then(console.log)
->>>>>>> joe-changes
   }
 
   postGameQuestion=(question)=>{
@@ -153,14 +150,11 @@ class GameList extends Component {
         <Game
         currentGame={this.state.currentGame}
         gameQuestions={this.state.gameQuestions}
-<<<<<<< HEAD
         currentUser={this.state.currentUser}
-=======
         reset={this.reset}
         startGame={this.startGame}
         // questions={this.state.questions}
         // answers={this.state.answers}
->>>>>>> joe-changes
         currentQuestion={this.state.currentQuestion}
         currentAnswers={this.state.currentAnswers}
         />
