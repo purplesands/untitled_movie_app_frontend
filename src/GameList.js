@@ -14,6 +14,19 @@ class GameList extends Component {
     gameQuestions: []
   }
 
+  reset=()=>{
+    this.setState({
+      questions: [],
+      answers: {},
+      currentQuestion: {},
+      currentAnswers: {},
+      currentGame: null,
+      currentUser: 1,
+      gameQuestions: []
+    },this.fetchQuestions())
+    
+  }
+
   startGame=()=>{
     fetch('http://localhost:3000/game_instances', {
       method: 'POST',
@@ -51,6 +64,7 @@ class GameList extends Component {
         score: 0
       })
     }).then(r=>r.json())
+    .then(console.log)
   }
 
   postGameQuestion=(question)=>{
@@ -108,8 +122,23 @@ class GameList extends Component {
   }
 
 
-  componentDidMount=()=>{
+  componentDidMount(){
     this.fetchQuestions()
+    this.interval = setInterval(this.checkNewGame, 2000);
+
+  }
+
+  componentWillUnmount() {
+      // Clear the interval right before component unmount
+    clearInterval(this.interval);
+  }
+
+
+  checkNewGame=()=>{
+    // debugger
+    // if (this.state.currentGame===10) {
+    //   console.log('game over bitch')
+    // }
   }
 
   renderGame=()=>{
@@ -118,11 +147,12 @@ class GameList extends Component {
         <Game
         currentGame={this.state.currentGame}
         gameQuestions={this.state.gameQuestions}
+        reset={this.reset}
+        startGame={this.startGame}
         // questions={this.state.questions}
         // answers={this.state.answers}
         currentQuestion={this.state.currentQuestion}
         currentAnswers={this.state.currentAnswers}
-        setQuestion={this.setQuestion}
         />
       )
     } else {
