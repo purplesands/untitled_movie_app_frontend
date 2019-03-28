@@ -17,8 +17,7 @@ class Game extends Component {
     answer_user: {},
     scoreboard: {},
     clicked: false,
-    answered: false,
-    gameOver: false
+    answered: false
   }
 
   answered = () => {
@@ -89,7 +88,7 @@ class Game extends Component {
     }).then(r=>r.json())
     .then(r => {
       this.setState({currentQuestion: newQ, round: this.state.round += 1,
-      clicked: !this.state.clicked},
+      clicked: false},
       this.completeRound)
       // blah
     })
@@ -97,10 +96,10 @@ class Game extends Component {
 
   completeRound = () => {
     let gameStatus = "in progress"
-    if (this.state.round === 10) {
+    if (this.state.round === 2) {
       gameStatus = "complete"
     }
-    if (this.state.round <= 10) {
+    if (this.state.round <= 2) {
       fetch(`http://localhost:3000//game_instances/${this.state.currentGame}`, {
         method: 'PATCH',
         headers: {
@@ -135,10 +134,10 @@ class Game extends Component {
       })
     }).then(r=>r.json())
     .then(r => {
-      this.setState({gameOver: true})
+      this.props.setGameOver()
       console.log("game end", r)
+      // this.props.reset()
     })
-    // this.props.reset()
   }
 
   updateScore = (id) => {
@@ -163,7 +162,6 @@ class Game extends Component {
     renderQuestionScreen = () => {
       return (
         <div>
-        <p>{this.state.timer} seconds left</p>
         <Score />
         <QuestionScreen
           currentQuestion={this.state.currentQuestion}
@@ -177,7 +175,6 @@ class Game extends Component {
     renderAnswerScreen = () => {
       return (
         <div>
-        <p>{this.state.timer} seconds left</p>
         <AnswerScreen
           currentAnswers={this.state.currentAnswers}
           currentQuestion={this.state.currentQuestion}
@@ -215,14 +212,27 @@ class Game extends Component {
     }
   }
 
+  renderScores = () => {
+    return (
+      <div>
+        <ul>
+          {this.props.user.username} - {this.state.scoreboard[this.state.answer_user.id]}
+        </ul>
+      </div>
+    )
+
+  }
+
   renderGameOver = () => {
-    if (this.state.gameOver === true) {
+    if (this.props.gameOver === true) {
       return (
         <div>
-          <p> Score </p>
-          {this.state.scoreboard}
+          <h2> Score </h2>
+          {this.renderScores()}
         </div>
       )
+    } else {
+      return null
     }
   }
 
@@ -236,8 +246,8 @@ class Game extends Component {
     return (
       <div className="Game">
         <button onClick={this.setQuestion}>begin</button>
+        {this.renderGameOver()}
          {this.renderGame()}
-         {this.renderGameOver()}
       </div>
     );
   }

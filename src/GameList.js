@@ -13,7 +13,8 @@ class GameList extends Component {
     currentUser: {},
     currentUsers: {},
     gameQuestions: [],
-    joinableGame: null
+    joinableGame: null,
+    gameOver: false
   }
 
   reset=()=>{
@@ -26,7 +27,8 @@ class GameList extends Component {
       currentUser: {},
       currentUsers: {},
       gameQuestions: [],
-      joinableGame: null
+      joinableGame: null,
+      gameOver: false
     },this.fetchQuestions())
 
   }
@@ -174,6 +176,9 @@ class GameList extends Component {
       // answers={this.state.answers}
       currentQuestion={this.state.currentQuestion}
       currentAnswers={this.state.currentAnswers}
+      setGameOver={this.setGameOver}
+      gameOver={this.state.gameOver}
+      user={this.props.user}
       />
     )
   }
@@ -184,6 +189,11 @@ class GameList extends Component {
         <button onClick={this.renderJoinGame}>{this.state.joinableGame}</button>
       </div>
     )
+  }
+
+  setGameOver = () => {
+    this.setState({gameOver: !this.state.gameOver})
+    // this.reset()
   }
 
   renderGame=()=>{
@@ -200,7 +210,24 @@ class GameList extends Component {
         // answers={this.state.answers}
         currentQuestion={this.state.currentQuestion}
         currentAnswers={this.state.currentAnswers}
+        setGameOver={this.setGameOver}
+        gameOver={this.state.gameOver}
+        user={this.props.user}
         />
+      )
+    } else {
+      return null
+    }
+  }
+
+  renderMenu = () => {
+    if (!this.state.currentGame) {
+      return (
+        <div className="GameList">
+          <div>{this.renderJoinButton()}</div>
+          <button onClick={this.startGame}>new game</button>
+          {this.renderGame()}
+        </div>
       )
     } else {
       return null
@@ -211,8 +238,7 @@ class GameList extends Component {
     console.log(this.state.currentUsers);
     return (
       <div className="GameList">
-        <div>{this.renderJoinButton()}</div>
-        <button onClick={this.startGame}>new game</button>
+        {this.renderMenu()}
         {this.renderGame()}
       </div>
     );
