@@ -11,7 +11,7 @@ class MainMenu extends Component {
       <div className="MainMenu">
         <UserPage />
         <CreateGame />
-        <GameList />
+        <GameList user={this.props.user}/>
       </div>
     );
   }

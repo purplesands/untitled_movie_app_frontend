@@ -48,11 +48,11 @@ class Game extends Component {
   }
 
   setAnswers = () => {
-    let currentQuestion = this.state.currentQuestion
+    let currentQuestion = {...this.state.currentQuestion}
     let shuffled = currentQuestion.answers.map(x => { return {data: x, srt: Math.random()}})
     .sort((a,b) => {return a.srt - b.srt})
     .map(x => x.data);
-    console.log('shuffled', shuffled.slice(0,3))
+    // debugger
     this.setState({
       currentAnswers: shuffled.slice(0,3),
     })
@@ -75,8 +75,9 @@ class Game extends Component {
       })
     }).then(r=>r.json())
     .then(r => {
-      this.setState({currentQuestion: newQ, round: this.state.round += 1})
-      this.completeRound()
+      this.setState({currentQuestion: newQ, round: this.state.round += 1},
+      this.completeRound())
+      // blah
     })
   }
 
@@ -125,14 +126,14 @@ class Game extends Component {
 
   updateScore = (id) => {
     let that = this
-    fetch(`http://localhost:3000/game_users/${that.props.currentGame}`, {
+    fetch(`http://localhost:3000/game_users/${that.props.currentUser.id}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        score: 10
+        score: this.props.currentUser.score += 10
       })
     }).then(r=>r.json())
     .then(r => {
@@ -142,7 +143,6 @@ class Game extends Component {
 
   renderGame = () => {
     if (this.state.currentAnswers.length === 3) {
-      // debugger
       return (
         <div>
         <p>{this.state.timer} seconds left</p>

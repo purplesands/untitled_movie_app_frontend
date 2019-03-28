@@ -10,7 +10,7 @@ class GameList extends Component {
     currentQuestion: {},
     currentAnswers: {},
     currentGame: null,
-    currentUser: 1,
+    currentUser: {},
     gameQuestions: []
   }
 
@@ -47,10 +47,13 @@ class GameList extends Component {
       },
       body: JSON.stringify({
         game_instance_id: this.state.currentGame,
-        user_id: this.state.currentUser,
+        user_id: this.props.user.id,
         score: 0
       })
     }).then(r=>r.json())
+    .then(r => {
+      this.setState({currentUser: r})
+    })
   }
 
   postGameQuestion=(question)=>{
@@ -118,8 +121,7 @@ class GameList extends Component {
         <Game
         currentGame={this.state.currentGame}
         gameQuestions={this.state.gameQuestions}
-        // questions={this.state.questions}
-        // answers={this.state.answers}
+        currentUser={this.state.currentUser}
         currentQuestion={this.state.currentQuestion}
         currentAnswers={this.state.currentAnswers}
         setQuestion={this.setQuestion}
@@ -128,10 +130,7 @@ class GameList extends Component {
     } else {
       return null
     }
-
   }
-
-
 
   render() {
     return (

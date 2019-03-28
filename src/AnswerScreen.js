@@ -10,7 +10,6 @@ class AnswerScreen extends Component {
 
   setAnswers=()=> {
     let answers = [...this.props.currentAnswers, this.props.currentQuestion.question]
-    debugger
     let shuffled = answers.map(x => { return {data: x, srt: Math.random()}})
     .sort((a,b) => {return a.srt - b.srt})
     .map(x => x.data);
