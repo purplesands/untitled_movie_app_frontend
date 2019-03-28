@@ -49,7 +49,7 @@ class AnswerScreen extends Component {
 
     // set Interval
     this.interval = setInterval(this.fetchInput, 2000);
-    this.interval = setInterval(this.checkRound, 2000);
+    this.interval = setInterval(this.checkRound, 1000);
 
 }
 
@@ -64,7 +64,7 @@ class AnswerScreen extends Component {
   }
 
   fetchInput = () => {
-      fetch(`http://localhost:3000/game_questions/${this.props.currentQuestion.id}`)
+      fetch(`https://purple-deer-71.localtunnel.me/game_questions/${this.props.currentQuestion.id}`)
       .then(r=>r.json())
       .then(r=>{
         this.setState({

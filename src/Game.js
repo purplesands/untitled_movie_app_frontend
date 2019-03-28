@@ -13,17 +13,16 @@ class Game extends Component {
     gameQuestions:[],
     currentQuestion: {},
     currentAnswers: {},
-    loaded: false,
     currentGame: {},
     answer_user: {},
-    scoreboard: {}
+    scoreboard: {},
   }
 
   getUserInput = (input) => {
     this.setState({
       userInput:input
     })
-    fetch(`http://localhost:3000/game_questions/${this.state.currentQuestion.id}`, {
+    fetch(`https://purple-deer-71.localtunnel.me/game_questions/${this.state.currentQuestion.id}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',
@@ -53,7 +52,7 @@ class Game extends Component {
     let shuffled = currentQuestion.answers.map(x => { return {data: x, srt: Math.random()}})
     .sort((a,b) => {return a.srt - b.srt})
     .map(x => x.data);
-    
+
     this.setState({
       currentAnswers: shuffled.slice(0,3),
     })
@@ -65,7 +64,7 @@ class Game extends Component {
   endTimer=()=>{
     let newQ = this.state.currentQuestion
     newQ.completed=true
-    fetch(`http://localhost:3000/game_questions/${this.state.currentQuestion.id}`, {
+    fetch(`https://purple-deer-71.localtunnel.me/game_questions/${this.state.currentQuestion.id}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',
@@ -88,7 +87,7 @@ class Game extends Component {
       gameStatus = "complete"
     }
     if (this.state.round <= 10) {
-      fetch(`http://localhost:3000/game_instances/${this.state.currentGame}`, {
+      fetch(`https://purple-deer-71.localtunnel.me/game_instances/${this.state.currentGame}`, {
         method: 'PATCH',
         headers: {
           'Accept': 'application/json',
@@ -109,7 +108,7 @@ class Game extends Component {
   }
 
   endGame = () => {
-    fetch(`http://localhost:3000/game_instances/${this.state.currentGame}`, {
+    fetch(`https://purple-deer-71.localtunnel.me/game_instances/${this.state.currentGame}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',
@@ -130,7 +129,7 @@ class Game extends Component {
       let that = this
       let newScoreboard = this.state.scoreboard
       newScoreboard[that.props.currentUser.id] = this.props.currentUser.score += 10
-      fetch(`http://localhost:3000/game_users/${that.props.currentUser.id}`, {
+      fetch(`https://purple-deer-71.localtunnel.me/game_users/${that.props.currentUser.id}`, {
         method: 'PATCH',
         headers: {
           'Accept': 'application/json',
@@ -179,7 +178,6 @@ class Game extends Component {
     if (this.state.currentAnswers.length === 3) {
       return (
         <div>
-          <p>{this.state.timer} seconds left</p>
           <Score />
           {this.renderQuestionScreen()}
           {this.renderAnswerScreen()}

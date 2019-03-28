@@ -10,7 +10,7 @@ class App extends Component {
   }
 
   getUser = (user) => {
-    fetch('http://localhost:3000/users', {
+    fetch('https://purple-deer-71.localtunnel.me/users', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -75,7 +75,7 @@ export default App;
 //
 //   getUser = (user) => {
 //     debugger
-//     fetch('http://localhost:3000/users', {
+//     fetch('https://purple-deer-71.localtunnel.me/users', {
 //       method: 'POST',
 //       headers: {
 //         'Accept': 'application/json',

@@ -11,7 +11,9 @@ class GameList extends Component {
     currentAnswers: {},
     currentGame: null,
     currentUser: {},
-    gameQuestions: []
+    currentUsers: {},
+    gameQuestions: [],
+    joinableGame: null
   }
 
   reset=()=>{
@@ -21,14 +23,16 @@ class GameList extends Component {
       currentQuestion: {},
       currentAnswers: {},
       currentGame: null,
-      currentUser: 1,
-      gameQuestions: []
+      currentUser: {},
+      currentUsers: {},
+      gameQuestions: [],
+      joinableGame: null
     },this.fetchQuestions())
 
   }
 
   startGame=()=>{
-    fetch('http://localhost:3000/game_instances', {
+    fetch('https://purple-deer-71.localtunnel.me/game_instances', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -36,7 +40,8 @@ class GameList extends Component {
       },
       body: JSON.stringify({
         game_round: 1,
-        game_status: "pregame"
+        game_status: "pregame",
+        user_status: this.props.user.username
       })
     }).then(r=>r.json())
     .then(r=>this.setState({
@@ -52,7 +57,10 @@ class GameList extends Component {
   }
 
   setGameUser=()=>{
-    fetch('http://localhost:3000/game_users', {
+    debugger
+    // let currentUsers = this.state.currentUsers
+    // currentUsers = {...this.state.currentUsers, this.props.currentUser}
+    fetch('https://purple-deer-71.localtunnel.me/game_users', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -71,7 +79,7 @@ class GameList extends Component {
   }
 
   postGameQuestion=(question)=>{
-    fetch('http://localhost:3000/game_questions', {
+    fetch('https://purple-deer-71.localtunnel.me/game_questions', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -91,7 +99,7 @@ class GameList extends Component {
   }
 
   fetchQuestions = () => {
-    fetch('http://localhost:3000/questions')
+    fetch('https://purple-deer-71.localtunnel.me/questions')
     .then(r => r.json())
     .then(q => {
       let shuffled = q.map(x => { return {data: x, srt: Math.random()}})
@@ -103,7 +111,7 @@ class GameList extends Component {
   }
 
   fetchAnswers = () => {
-    fetch('http://localhost:3000/answers')
+    fetch('https://purple-deer-71.localtunnel.me/answers')
     .then(r => r.json())
     .then(a => {
       let arr = this.matchAnswers(a, this.state.questions)
@@ -127,8 +135,7 @@ class GameList extends Component {
 
   componentDidMount(){
     this.fetchQuestions()
-    this.interval = setInterval(this.checkNewGame, 2000);
-
+    this.interval = setInterval(this.checkNewGame, 1000);
   }
 
   componentWillUnmount() {
@@ -138,10 +145,46 @@ class GameList extends Component {
 
 
   checkNewGame=()=>{
-    // debugger
-    // if (this.state.currentGame===10) {
-    //   console.log('game over bitch')
-    // }
+    fetch('https://purple-deer-71.localtunnel.me/game_instances')
+    .then(r=>r.json())
+    .then(r=>{this.checkGameProgress(r)})
+  }
+
+  checkGameProgress =(r)=>{
+    let game = r.find(g=>{
+    return g.game_status === "pregame"
+    })
+    if (game) {
+      this.setState({
+        joinableGame:game.id
+      })
+    }
+  }
+
+  renderJoinGame=()=>{
+    this.setState({currentGame: this.state.joinableGame}, this.setGameUser)
+    return (
+      <Game
+      currentGame={this.state.currentGame}
+      gameQuestions={this.state.gameQuestions}
+      currentUser={this.state.currentUser}
+      currentUsers={this.state.currentUsers}
+      reset={this.reset}
+      startGame={this.startGame}
+      // questions={this.state.questions}
+      // answers={this.state.answers}
+      currentQuestion={this.state.currentQuestion}
+      currentAnswers={this.state.currentAnswers}
+      />
+    )
+  }
+
+  renderJoinButton=()=>{
+    return (
+      <div>
+        <button onClick={this.renderJoinGame}>{this.state.joinableGame}</button>
+      </div>
+    )
   }
 
   renderGame=()=>{
@@ -151,6 +194,7 @@ class GameList extends Component {
         currentGame={this.state.currentGame}
         gameQuestions={this.state.gameQuestions}
         currentUser={this.state.currentUser}
+        currentUsers={this.state.currentUsers}
         reset={this.reset}
         startGame={this.startGame}
         // questions={this.state.questions}
@@ -165,8 +209,10 @@ class GameList extends Component {
   }
 
   render() {
+    console.log(this.state.currentUsers);
     return (
       <div className="GameList">
+        <div>{this.renderJoinButton()}</div>
         <button onClick={this.startGame}>new game</button>
         {this.renderGame()}
       </div>
