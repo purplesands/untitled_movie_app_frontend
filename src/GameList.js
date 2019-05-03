@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import './App.css';
 import Game from './Game';
+import { ActionCableConsumer } from 'react-actioncable-provider'
 
 class GameList extends Component {
 
   state= {
     questions: [],
     answers: {},
-    currentQuestion: {},
-    currentAnswers: {},
+    // currentQuestion: {},
+    // currentAnswers: {},
     currentGame: null,
     currentUser: {},
     currentUsers: {},
@@ -21,8 +22,8 @@ class GameList extends Component {
     this.setState({
       questions: [],
       answers: {},
-      currentQuestion: {},
-      currentAnswers: {},
+      // currentQuestion: {},
+      // currentAnswers: {},
       currentGame: null,
       currentUser: {},
       currentUsers: {},
@@ -58,12 +59,30 @@ class GameList extends Component {
     })
   }
 
+  setJoinUser=()=>{
+    this.setGameUser()
+    this.state.questions.map(q => {
+      return this.postGameQuestion(q)
+    })
+  }
+
+  // joinGame = (id) => {
+  //   fetch(`http://localhost:3000/game_instances/${id}`)
+  //   .then(r => r.json())
+  //   .then(r => {
+  //     this.setState({gameQuestions: r.game_questions})
+  //   }, this.renderJoinGame(id))
+  // }
+
   joinGame = (id) => {
-    fetch(`http://localhost:3000/game_instances/${id}`)
+    fetch(`http://localhost:3000/game_questions`)
     .then(r => r.json())
     .then(r => {
-      debugger
-    })
+      let game_questions = r.filter(q => {
+        return id === q.game_instance_id
+      })
+      this.setState({gameQuestions: game_questions})
+    }, this.renderJoinGame(id))
   }
 
   setGameUser=()=>{
@@ -143,7 +162,8 @@ class GameList extends Component {
 
   componentDidMount(){
     this.fetchQuestions()
-    this.interval = setInterval(this.checkNewGame, 1000);
+    this.checkNewGame()
+    // this.interval = setInterval(this.checkNewGame, 1000);
   }
 
   componentWillUnmount() {
@@ -180,8 +200,8 @@ class GameList extends Component {
       reset={this.reset}
       // questions={this.state.questions}
       // answers={this.state.answers}
-      currentQuestion={this.state.currentQuestion}
-      currentAnswers={this.state.currentAnswers}
+      // currentQuestion={this.state.currentQuestion}
+      // currentAnswers={this.state.currentAnswers}
       setGameOver={this.setGameOver}
       gameOver={this.state.gameOver}
       user={this.props.user}
@@ -216,8 +236,8 @@ class GameList extends Component {
         startGame={this.startGame}
         // questions={this.state.questions}
         // answers={this.state.answers}
-        currentQuestion={this.state.currentQuestion}
-        currentAnswers={this.state.currentAnswers}
+        // currentQuestion={this.state.currentQuestion}
+        // currentAnswers={this.state.currentAnswers}
         setGameOver={this.setGameOver}
         gameOver={this.state.gameOver}
         user={this.props.user}
@@ -245,6 +265,9 @@ class GameList extends Component {
   render() {
     return (
       <div className="GameList">
+        <ActionCableConsumer
+        channel = {{ channel: 'FeedChannel'}}
+        onReceived={data=>this.checkNewGame()}/>
         {this.renderMenu()}
         {this.renderGame()}
       </div>

@@ -3,6 +3,7 @@ import './App.css';
 import QuestionScreen from './QuestionScreen';
 import AnswerScreen from './AnswerScreen';
 import Score from './Score';
+import { ActionCableConsumer } from 'react-actioncable-provider'
 
 class Game extends Component {
 
@@ -58,9 +59,7 @@ class Game extends Component {
   }
 
   setAnswers = () => {
-    // debugger
     let currentQuestion = {...this.state.currentQuestion}
-    // debugger
     let shuffled = currentQuestion.answers.map(x => { return {data: x, srt: Math.random()}})
     .sort((a,b) => {return a.srt - b.srt})
     .map(x => x.data);
@@ -100,6 +99,7 @@ class Game extends Component {
       gameStatus = "complete"
     }
     if (this.state.round <= 3) {
+      debugger
       fetch(`http://localhost:3000/game_instances/${this.state.currentGame}`, {
         method: 'PATCH',
         headers: {
@@ -122,6 +122,7 @@ class Game extends Component {
   }
 
   endGame = () => {
+    debugger
     fetch(`http://localhost:3000/game_instances/${this.state.currentGame}`, {
       method: 'PATCH',
       headers: {
@@ -158,10 +159,17 @@ class Game extends Component {
         this.setState({answer_user: r, scoreboard: newScoreboard})
       })
     }
+    checkData=(data)=>{
+      debugger
+      this.setState({currentGame:data})
+    }
 
     renderQuestionScreen = () => {
       return (
         <div>
+        <ActionCableConsumer
+        channel = {{ channel: 'FeedChannel'}}
+        onReceived={data=>this.checkData(data)}/>
         <Score />
         <QuestionScreen
           currentQuestion={this.state.currentQuestion}
@@ -192,7 +200,6 @@ class Game extends Component {
 
   renderGame = () => {
     // if (this.state.userInput != '' && this.state.currentAnswers.length === 3) {
-    //   debugger
     //   // return (
     //   //   <div>
     //   //     <Score />
@@ -201,7 +208,6 @@ class Game extends Component {
     //   // )
     // }
     if (this.state.currentAnswers.length === 3) {
-      // debugger
       return (
         <div>
           <Score />
