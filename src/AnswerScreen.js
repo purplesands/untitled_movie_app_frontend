@@ -80,7 +80,7 @@ class AnswerScreen extends Component {
   }
 
   fetchInput = () => {
-      fetch(`http://localhost:3000//game_questions/${this.props.currentQuestion.id}`)
+      fetch(`http://localhost:3000/game_questions/${this.props.currentQuestion.id}`)
       .then(r=>r.json())
       .then(r=>{
         this.setState({

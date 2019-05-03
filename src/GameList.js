@@ -13,7 +13,7 @@ class GameList extends Component {
     currentUser: {},
     currentUsers: {},
     gameQuestions: [],
-    joinableGame: null,
+    joinableGames: [],
     gameOver: false
   }
 
@@ -27,14 +27,14 @@ class GameList extends Component {
       currentUser: {},
       currentUsers: {},
       gameQuestions: [],
-      joinableGame: null,
+      joinableGames: [],
       gameOver: false
     },this.fetchQuestions())
 
   }
 
   startGame=()=>{
-    fetch('http://localhost:3000//game_instances', {
+    fetch('http://localhost:3000/game_instances', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -58,10 +58,18 @@ class GameList extends Component {
     })
   }
 
+  joinGame = (id) => {
+    fetch(`http://localhost:3000/game_instances/${id}`)
+    .then(r => r.json())
+    .then(r => {
+      debugger
+    })
+  }
+
   setGameUser=()=>{
     // let currentUsers = this.state.currentUsers
     // currentUsers = {...this.state.currentUsers, this.props.currentUser}
-    fetch('http://localhost:3000//game_users', {
+    fetch('http://localhost:3000/game_users', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -76,11 +84,11 @@ class GameList extends Component {
     .then(r => {
       this.setState({currentUser: r})
     })
-    .then(console.log)
+    // .then(console.log)
   }
 
   postGameQuestion=(question)=>{
-    fetch('http://localhost:3000//game_questions', {
+    fetch('http://localhost:3000/game_questions', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -96,11 +104,10 @@ class GameList extends Component {
     .then(r => {
       this.setState({gameQuestions: [...this.state.gameQuestions, r]})
     })
-    // .then(r=>setTimeout(this.getGameQuestions()))
   }
 
   fetchQuestions = () => {
-    fetch('http://localhost:3000//questions')
+    fetch('http://localhost:3000/questions')
     .then(r => r.json())
     .then(q => {
       let shuffled = q.map(x => { return {data: x, srt: Math.random()}})
@@ -112,7 +119,7 @@ class GameList extends Component {
   }
 
   fetchAnswers = () => {
-    fetch('http://localhost:3000//answers')
+    fetch('http://localhost:3000/answers')
     .then(r => r.json())
     .then(a => {
       let arr = this.matchAnswers(a, this.state.questions)
@@ -146,24 +153,24 @@ class GameList extends Component {
 
 
   checkNewGame=()=>{
-    fetch('http://localhost:3000//game_instances')
+    fetch('http://localhost:3000/game_instances')
     .then(r=>r.json())
     .then(r=>{this.checkGameProgress(r)})
   }
 
   checkGameProgress =(r)=>{
-    let game = r.find(g=>{
-    return g.game_status === "pregame"
+    let games = r.filter(g=>{
+      return g.game_status === "pregame"
     })
-    if (game) {
+    if (games) {
       this.setState({
-        joinableGame:game.id
+        joinableGames:games
       })
     }
   }
 
-  renderJoinGame=()=>{
-    this.setState({currentGame: this.state.joinableGame}, this.setGameUser)
+  renderJoinGame=(id)=>{
+    this.setState({currentGame: id}, this.setGameUser)
     return (
       <Game
       currentGame={this.state.currentGame}
@@ -171,7 +178,6 @@ class GameList extends Component {
       currentUser={this.state.currentUser}
       currentUsers={this.state.currentUsers}
       reset={this.reset}
-      startGame={this.startGame}
       // questions={this.state.questions}
       // answers={this.state.answers}
       currentQuestion={this.state.currentQuestion}
@@ -183,12 +189,14 @@ class GameList extends Component {
     )
   }
 
-  renderJoinButton=()=>{
-    return (
-      <div>
-        <button onClick={this.renderJoinGame}>{this.state.joinableGame}</button>
-      </div>
-    )
+  renderJoinButtons=(arr)=>{
+    return arr.map(game => {
+      return (
+        <div>
+          <button onClick={()=>this.joinGame(game.id)}>{game.id} hosted by {game.user_status}</button>
+        </div>
+      )
+    })
   }
 
   setGameOver = () => {
@@ -224,7 +232,7 @@ class GameList extends Component {
     if (!this.state.currentGame) {
       return (
         <div className="GameList">
-          <div>{this.renderJoinButton()}</div>
+          <div>{this.renderJoinButtons(this.state.joinableGames)}</div>
           <button onClick={this.startGame}>new game</button>
           {this.renderGame()}
         </div>
@@ -235,7 +243,6 @@ class GameList extends Component {
   }
 
   render() {
-    console.log(this.state.currentUsers);
     return (
       <div className="GameList">
         {this.renderMenu()}

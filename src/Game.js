@@ -29,7 +29,7 @@ class Game extends Component {
       userInput:input,
       clicked: !this.state.clicked
     })
-    fetch(`http://localhost:3000//game_questions/${this.state.currentQuestion.id}`, {
+    fetch(`http://localhost:3000/game_questions/${this.state.currentQuestion.id}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',
@@ -76,7 +76,7 @@ class Game extends Component {
   endTimer=()=>{
     let newQ = this.state.currentQuestion
     newQ.completed=true
-    fetch(`http://localhost:3000//game_questions/${this.state.currentQuestion.id}`, {
+    fetch(`http://localhost:3000/game_questions/${this.state.currentQuestion.id}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',
@@ -96,11 +96,11 @@ class Game extends Component {
 
   completeRound = () => {
     let gameStatus = "in progress"
-    if (this.state.round === 5) {
+    if (this.state.round === 3) {
       gameStatus = "complete"
     }
-    if (this.state.round <= 5) {
-      fetch(`http://localhost:3000//game_instances/${this.state.currentGame}`, {
+    if (this.state.round <= 3) {
+      fetch(`http://localhost:3000/game_instances/${this.state.currentGame}`, {
         method: 'PATCH',
         headers: {
           'Accept': 'application/json',
@@ -122,7 +122,7 @@ class Game extends Component {
   }
 
   endGame = () => {
-    fetch(`http://localhost:3000//game_instances/${this.state.currentGame}`, {
+    fetch(`http://localhost:3000/game_instances/${this.state.currentGame}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',
@@ -144,7 +144,7 @@ class Game extends Component {
       let that = this
       let newScoreboard = this.state.scoreboard
       newScoreboard[that.props.currentUser.id] = this.props.currentUser.score += 10
-      fetch(`http://localhost:3000//game_users/${that.props.currentUser.id}`, {
+      fetch(`http://localhost:3000/game_users/${that.props.currentUser.id}`, {
         method: 'PATCH',
         headers: {
           'Accept': 'application/json',

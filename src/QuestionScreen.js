@@ -6,7 +6,7 @@ class QuestionScreen extends Component {
     input: ''
   }
 
-  setInput = (e) => {
+  npm = (e) => {
     if (!this.checkInput(e.target.value.toLowerCase())) {
       let input = e.target.value.split(" ")
       if (input.length > 1) {
@@ -55,7 +55,7 @@ class QuestionScreen extends Component {
           <p>Title: {this.props.currentQuestion.question.title} </p>
           <p>Synopsis: {this.props.currentQuestion.question.synopsis}</p>
           <form onSubmit={this.submitInput}>
-            Enter Plot Summary: <textarea rows="2" cols="30" type="text" name="input" onChange={(e)=>this.setInput(e)} maxlength="25"/>
+            Enter Plot Summary: <textarea rows="2" cols="30" type="text" name="input" onChange={(e)=>this.npm(e)} maxlength="25"/>
             <button type="submit" value="Submit" > Submit </button>
           </form>
         </div>
