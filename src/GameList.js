@@ -8,11 +8,8 @@ class GameList extends Component {
   state= {
     questions: [],
     answers: {},
-    // currentQuestion: {},
-    // currentAnswers: {},
     currentGame: null,
     currentUser: {},
-    currentUsers: {},
     gameQuestions: [],
     joinableGames: [],
     gameOver: false
@@ -22,11 +19,8 @@ class GameList extends Component {
     this.setState({
       questions: [],
       answers: {},
-      // currentQuestion: {},
-      // currentAnswers: {},
       currentGame: null,
       currentUser: {},
-      currentUsers: {},
       gameQuestions: [],
       joinableGames: [],
       gameOver: false
@@ -53,18 +47,18 @@ class GameList extends Component {
   }
 
   setFirstUser=()=>{
-    this.setGameUser()
+    this.setGameHost()
     this.state.questions.map(q => {
       return this.postGameQuestion(q)
     })
   }
 
-  setJoinUser=()=>{
-    this.setGameUser()
-    this.state.questions.map(q => {
-      return this.postGameQuestion(q)
-    })
-  }
+  // setJoinUser=()=>{
+  //   this.setGameHost()
+  //   this.state.questions.map(q => {
+  //     return this.postGameQuestion(q)
+  //   })
+  // }
 
   // joinGame = (id) => {
   //   fetch(`http://localhost:3000/game_instances/${id}`)
@@ -85,9 +79,7 @@ class GameList extends Component {
     }, this.renderJoinGame(id))
   }
 
-  setGameUser=()=>{
-    // let currentUsers = this.state.currentUsers
-    // currentUsers = {...this.state.currentUsers, this.props.currentUser}
+  setGameHost=()=>{
     fetch('http://localhost:3000/game_users', {
       method: 'POST',
       headers: {
@@ -97,13 +89,33 @@ class GameList extends Component {
       body: JSON.stringify({
         game_instance_id: this.state.currentGame,
         user_id: this.props.user.id,
-        score: 0
+        score: 0,
+        host: true
       })
     }).then(r=>r.json())
     .then(r => {
       this.setState({currentUser: r})
     })
     // .then(console.log)
+  }
+
+  setGameUser=()=>{
+    fetch('http://localhost:3000/game_users', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        game_instance_id: this.state.currentGame,
+        user_id: this.props.user.id,
+        score: 0,
+        host: false
+      })
+    }).then(r=>r.json())
+    .then(r => {
+      this.setState({currentUser: r})
+    })
   }
 
   postGameQuestion=(question)=>{
@@ -196,12 +208,7 @@ class GameList extends Component {
       currentGame={this.state.currentGame}
       gameQuestions={this.state.gameQuestions}
       currentUser={this.state.currentUser}
-      currentUsers={this.state.currentUsers}
       reset={this.reset}
-      // questions={this.state.questions}
-      // answers={this.state.answers}
-      // currentQuestion={this.state.currentQuestion}
-      // currentAnswers={this.state.currentAnswers}
       setGameOver={this.setGameOver}
       gameOver={this.state.gameOver}
       user={this.props.user}
@@ -231,13 +238,8 @@ class GameList extends Component {
         currentGame={this.state.currentGame}
         gameQuestions={this.state.gameQuestions}
         currentUser={this.state.currentUser}
-        currentUsers={this.state.currentUsers}
         reset={this.reset}
         startGame={this.startGame}
-        // questions={this.state.questions}
-        // answers={this.state.answers}
-        // currentQuestion={this.state.currentQuestion}
-        // currentAnswers={this.state.currentAnswers}
         setGameOver={this.setGameOver}
         gameOver={this.state.gameOver}
         user={this.props.user}

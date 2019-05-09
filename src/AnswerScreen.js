@@ -10,15 +10,22 @@ class AnswerScreen extends Component {
   }
 
   setAnswers=()=> {
-    let answers = [...this.props.currentAnswers, this.props.currentQuestion.question]
-    let shuffled = answers.map(x => { return {data: x, srt: Math.random()}})
-    .sort((a,b) => {return a.srt - b.srt})
-    .map(x => x.data);
-
+    let answers = [...this.props.currentAnswers].slice(-4)
+    // let answers = [...this.props.currentAnswers, this.props.currentQuestion.question]
+    // let shuffled = answers.map(x => { return {data: x, srt: Math.random()}})
+    // .sort((a,b) => {return a.srt - b.srt})
+    // .map(x => x.data);
     this.setState({
-      currentAnswers:shuffled,
+      currentAnswers: answers,
       round: this.props.round
     })
+    // let shuffled = answers.map(x => { return {data: x, srt: Math.random()}})
+    // .sort((a,b) => {return a.srt - b.srt})
+    // .map(x => x.data);
+    // this.setState({
+    //   currentAnswers:shuffled,
+    //   round: this.props.round
+    // })
   }
 
   // handleColor = () => {
@@ -58,22 +65,20 @@ class AnswerScreen extends Component {
   }
 
   componentDidMount() {
-    // Call this function so that it fetch first time right after mounting the component
     this.fetchInput();
     this.setAnswers();
-
 
     // set Interval
     this.interval = setInterval(this.fetchInput, 1000);
     this.interval = setInterval(this.checkRound, 1000);
-
-}
+  }
 
   checkRound=()=>{
-    if (this.props.round>this.state.round) {
+    if (this.props.round > this.state.round) {
       this.setAnswers()
     }
   }
+
   componentWillUnmount() {
       // Clear the interval right before component unmount
     clearInterval(this.interval);
@@ -89,7 +94,6 @@ class AnswerScreen extends Component {
       })
     }
 
-
   renderAnswers=()=>{
     return this.state.currentAnswers.map(a=>{
       return <p><button className="answerButton"
@@ -100,7 +104,6 @@ class AnswerScreen extends Component {
               </button> </p>
     })
   }
-
 
   render() {
     return (

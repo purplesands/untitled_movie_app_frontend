@@ -13,7 +13,7 @@ class Game extends Component {
     timer:10,
     gameQuestions:[],
     currentQuestion: {},
-    currentAnswers: {},
+    currentAnswers: [],
     currentGame: {},
     answer_user: {},
     scoreboard: {},
@@ -51,7 +51,7 @@ class Game extends Component {
 
   setQuestion = () => {
     let questions = [...this.props.gameQuestions]
-    let currentQuestion = questions.find(q=>{return q.completed===false})
+    let currentQuestion = questions.find(q=>{return q.completed === false})
     this.setState({
       gameQuestions: questions,
       currentQuestion: currentQuestion
@@ -59,14 +59,95 @@ class Game extends Component {
   }
 
   setAnswers = () => {
-    let currentQuestion = {...this.state.currentQuestion}
-    let shuffled = currentQuestion.answers.map(x => { return {data: x, srt: Math.random()}})
-    .sort((a,b) => {return a.srt - b.srt})
-    .map(x => x.data);
+    // added active boolean column to answers table and patch active column to true when answers are setState
+    //******************************************************************************************************
+    // need to check if current game_user is the host or not. if not, fetch answers with active set to true.
+    // add host boolean column to game_user
+    // create game_answer intance with 3 wrong answers and the correct answer
+    // create for each round and grab the latest 4 at the beginning of each round
+    //******************************************************************************************************
+    if (this.props.currentUser.host === true) {
+      let currentQuestion = {...this.state.currentQuestion}
+      let shuffled = currentQuestion.answers.map(x => { return {data: x, srt: Math.random()}})
+      .sort((a,b) => {return a.srt - b.srt})
+      .map(x => x.data)
+      .slice(0,3);
+      shuffled.push(currentQuestion.question)
+      let gameAnswer = shuffled.map(x => { return {data: x, srt: Math.random()}})
+      .sort((a,b) => {return a.srt - b.srt})
+      .map(x => x.data)
+      for (var i = 0; i < gameAnswer.length; i++) {
+        fetch(`http://localhost:3000/game_answers`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            game_question_id: currentQuestion.id,
+            title: gameAnswer[i].title
+          })
+        }).then(r=>r.json())
+        .then(r => {
+          this.setState({
+            currentAnswers: [...this.state.currentAnswers, r],
+          })
+        })
+      }
+    } else {
+      fetch(`http://localhost:3000/game_questions/${this.state.currentQuestion.id}`)
+      .then(r => r.json())
+      .then(r => {
+          //multiple answers are true because of active or previous games. reset them somehow?
+          this.setState({currentAnswers: r.game_answers})
+      })
+    }
 
-    this.setState({
-      currentAnswers: shuffled.slice(0,3),
-    })
+    // if (this.props.currentUser.host === true) {
+    //   let currentQuestion = {...this.state.currentQuestion}
+    //   let shuffled = currentQuestion.answers.map(x => { return {data: x, srt: Math.random()}})
+    //   .sort((a,b) => {return a.srt - b.srt})
+    //   .map(x => x.data)
+    //   .slice(0,3);
+    //   for (var i = 0; i < shuffled.length; i++) {
+    //     fetch(`http://localhost:3000/answers/${shuffled[i].id}`, {
+    //       method: 'PATCH',
+    //       headers: {
+    //         'Accept': 'application/json',
+    //         'Content-Type': 'application/json'
+    //       },
+    //       body: JSON.stringify({
+    //         active: true
+    //       })
+    //     }).then(r=>r.json())
+    //     .then(r => {
+    //       this.setState({
+    //         currentAnswers: [...this.state.currentAnswers, r],
+    //       })
+    //     })
+    //   }
+    // } else {
+    //   fetch(`http://localhost:3000/game_questions/${this.state.currentQuestion.id}`)
+    //   .then(r => r.json())
+    //   .then(r => {
+    //       let currentAnswers = r.answers.filter(q => {
+    //         return q.active === true
+    //       })
+    //       //multiple answers are true because of active or previous games. reset them somehow?
+    //       debugger
+    //       this.setState({currentAnswers: currentAnswers})
+    //   })
+    //
+    // }
+
+
+    // let currentQuestion = {...this.state.currentQuestion}
+    // let shuffled = currentQuestion.answers.map(x => { return {data: x, srt: Math.random()}})
+    // .sort((a,b) => {return a.srt - b.srt})
+    // .map(x => x.data);
+    // this.setState({
+    //   currentAnswers: shuffled.slice(0,3),
+    // })
     // takes this.state.currentQuestion
     // matches that question with matching answers
     // takes 3 of those answers at random and assigns to this.state.currentAnswer
@@ -74,7 +155,7 @@ class Game extends Component {
 
   endTimer=()=>{
     let newQ = this.state.currentQuestion
-    newQ.completed=true
+    newQ.completed = true
     fetch(`http://localhost:3000/game_questions/${this.state.currentQuestion.id}`, {
       method: 'PATCH',
       headers: {
@@ -99,7 +180,6 @@ class Game extends Component {
       gameStatus = "complete"
     }
     if (this.state.round <= 3) {
-      debugger
       fetch(`http://localhost:3000/game_instances/${this.state.currentGame}`, {
         method: 'PATCH',
         headers: {
@@ -122,7 +202,6 @@ class Game extends Component {
   }
 
   endGame = () => {
-    debugger
     fetch(`http://localhost:3000/game_instances/${this.state.currentGame}`, {
       method: 'PATCH',
       headers: {
@@ -159,9 +238,14 @@ class Game extends Component {
         this.setState({answer_user: r, scoreboard: newScoreboard})
       })
     }
-    checkData=(data)=>{
-      debugger
+
+    checkQuestion=(data)=>{
+      // debugger
       this.setState({currentGame:data})
+    }
+
+    checkAnswer=(data)=>{
+      // debugger
     }
 
     renderQuestionScreen = () => {
@@ -169,7 +253,7 @@ class Game extends Component {
         <div>
         <ActionCableConsumer
         channel = {{ channel: 'FeedChannel'}}
-        onReceived={data=>this.checkData(data)}/>
+        onReceived={data=>this.checkQuestion(data)}/>
         <Score />
         <QuestionScreen
           currentQuestion={this.state.currentQuestion}
@@ -183,6 +267,9 @@ class Game extends Component {
     renderAnswerScreen = () => {
       return (
         <div>
+        <ActionCableConsumer
+        channel = {{ channel: 'FeedChannel'}}
+        onReceived={data => this.checkAnswer(data)}/>
         <AnswerScreen
           currentAnswers={this.state.currentAnswers}
           currentQuestion={this.state.currentQuestion}
@@ -199,15 +286,8 @@ class Game extends Component {
     }
 
   renderGame = () => {
-    // if (this.state.userInput != '' && this.state.currentAnswers.length === 3) {
-    //   // return (
-    //   //   <div>
-    //   //     <Score />
-    //   //     {this.renderAnswerScreen()}
-    //   //   </div>
-    //   // )
-    // }
-    if (this.state.currentAnswers.length === 3) {
+    // if (this.state.currentAnswers.length === 3) {
+    if (this.state.currentAnswers.length > 3) {
       return (
         <div>
           <Score />
@@ -215,6 +295,8 @@ class Game extends Component {
           {this.renderAnswerScreen()}
         </div>
       )
+    } else {
+      // debugger
     }
   }
 
