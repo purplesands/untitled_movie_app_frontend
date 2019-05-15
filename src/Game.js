@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import './App.css';
 import QuestionScreen from './QuestionScreen';
 import AnswerScreen from './AnswerScreen';
-import Score from './Score';
 import { ActionCableConsumer } from 'react-actioncable-provider'
 
 class Game extends Component {
@@ -51,10 +50,23 @@ class Game extends Component {
 
   setQuestion = () => {
     let questions = [...this.props.gameQuestions]
+    // debugger
     let currentQuestion = questions.find(q=>{return q.completed === false})
     this.setState({
       gameQuestions: questions,
-      currentQuestion: currentQuestion
+      currentQuestion: currentQuestion,
+      currentAnswers: []
+    }, this.setAnswers)
+  }
+
+  setNextQuestion = () => {
+    let questions = [...this.state.gameQuestions]
+    // debugger
+    let currentQuestion = questions.find(q=>{return q.completed === false})
+    this.setState({
+      gameQuestions: questions,
+      currentQuestion: currentQuestion,
+      currentAnswers: []
     }, this.setAnswers)
   }
 
@@ -102,55 +114,6 @@ class Game extends Component {
           this.setState({currentAnswers: r.game_answers})
       })
     }
-
-    // if (this.props.currentUser.host === true) {
-    //   let currentQuestion = {...this.state.currentQuestion}
-    //   let shuffled = currentQuestion.answers.map(x => { return {data: x, srt: Math.random()}})
-    //   .sort((a,b) => {return a.srt - b.srt})
-    //   .map(x => x.data)
-    //   .slice(0,3);
-    //   for (var i = 0; i < shuffled.length; i++) {
-    //     fetch(`http://localhost:3000/answers/${shuffled[i].id}`, {
-    //       method: 'PATCH',
-    //       headers: {
-    //         'Accept': 'application/json',
-    //         'Content-Type': 'application/json'
-    //       },
-    //       body: JSON.stringify({
-    //         active: true
-    //       })
-    //     }).then(r=>r.json())
-    //     .then(r => {
-    //       this.setState({
-    //         currentAnswers: [...this.state.currentAnswers, r],
-    //       })
-    //     })
-    //   }
-    // } else {
-    //   fetch(`http://localhost:3000/game_questions/${this.state.currentQuestion.id}`)
-    //   .then(r => r.json())
-    //   .then(r => {
-    //       let currentAnswers = r.answers.filter(q => {
-    //         return q.active === true
-    //       })
-    //       //multiple answers are true because of active or previous games. reset them somehow?
-    //       debugger
-    //       this.setState({currentAnswers: currentAnswers})
-    //   })
-    //
-    // }
-
-
-    // let currentQuestion = {...this.state.currentQuestion}
-    // let shuffled = currentQuestion.answers.map(x => { return {data: x, srt: Math.random()}})
-    // .sort((a,b) => {return a.srt - b.srt})
-    // .map(x => x.data);
-    // this.setState({
-    //   currentAnswers: shuffled.slice(0,3),
-    // })
-    // takes this.state.currentQuestion
-    // matches that question with matching answers
-    // takes 3 of those answers at random and assigns to this.state.currentAnswer
 }
 
   endTimer=()=>{
@@ -170,7 +133,6 @@ class Game extends Component {
       this.setState({currentQuestion: newQ, round: this.state.round += 1,
       clicked: false},
       this.completeRound)
-      // blah
     })
   }
 
@@ -200,6 +162,29 @@ class Game extends Component {
       this.endGame()
     }
   }
+
+  // fetchNewGameQuestions=(round)=>{
+  //   fetch(`http://localhost:3000/game_questions`)
+  //   .then(r => r.json())
+  //   .then(r => {
+  //     let game_questions = r.filter(q => {
+  //       return this.state.currentGame === q.game_instance_id
+  //     })
+  //     this.setState({gameQuestions: game_questions,
+  //     round:round
+  //   }, this.smartFunction)
+  //   // .then(r=>{
+  //   //   this.setQuestion()
+  //   //   this.answered()
+  //   // })
+  //   })
+  //
+  // }
+  //
+  // smartFunction = () => {
+  //   this.setNextQuestion()
+  //   // this.answered()
+  // }
 
   endGame = () => {
     fetch(`http://localhost:3000/game_instances/${this.state.currentGame}`, {
@@ -240,12 +225,18 @@ class Game extends Component {
     }
 
     checkQuestion=(data)=>{
-      // debugger
-      this.setState({currentGame:data})
+      this.setState({
+        round:data.game_round
+      })
+      // if (data.game_round < 4) {
+        this.props.fetchNewGameQuestions(data.game_round)
+        setTimeout(this.setQuestion, 2000)
+      // } else {
+      // }
+      // this.setState({currentGame:data})
     }
 
     checkAnswer=(data)=>{
-      // debugger
     }
 
     renderQuestionScreen = () => {
@@ -254,7 +245,6 @@ class Game extends Component {
         <ActionCableConsumer
         channel = {{ channel: 'FeedChannel'}}
         onReceived={data=>this.checkQuestion(data)}/>
-        <Score />
         <QuestionScreen
           currentQuestion={this.state.currentQuestion}
           getUserInput={this.getUserInput}
@@ -290,7 +280,6 @@ class Game extends Component {
     if (this.state.currentAnswers.length > 3) {
       return (
         <div>
-          <Score />
           {this.renderQuestionScreen()}
           {this.renderAnswerScreen()}
         </div>
@@ -311,18 +300,18 @@ class Game extends Component {
 
   }
 
-  renderGameOver = () => {
-    if (this.props.gameOver === true) {
-      return (
-        <div>
-          <h2> Score </h2>
-          {this.renderScores()}
-        </div>
-      )
-    } else {
-      return null
-    }
-  }
+  // renderGameOver = () => {
+  //   if (this.props.gameOver === true) {
+  //     return (
+  //       <div>
+  //         <h2> Score </h2>
+  //         {this.renderScores()}
+  //       </div>
+  //     )
+  //   } else {
+  //     return null
+  //   }
+  // }
 
   render() {
     console.log("input ", this.state.userInput);
@@ -334,7 +323,6 @@ class Game extends Component {
     return (
       <div className="Game">
         <button onClick={this.setQuestion}>begin</button>
-        {this.renderGameOver()}
          {this.renderGame()}
       </div>
     );

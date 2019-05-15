@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import Game from './Game';
+import Score from './Score';
 import { ActionCableConsumer } from 'react-actioncable-provider'
 
 class GameList extends Component {
@@ -231,6 +232,58 @@ class GameList extends Component {
     // this.reset()
   }
 
+  endGame = () => {
+    fetch(`http://localhost:3000/game_instances/${this.state.currentGame}`, {
+      method: 'PATCH',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        game_round: 10,
+        game_status: "complete"
+      })
+    }).then(r=>r.json())
+    .then(r => {
+      this.setGameOver()
+      console.log("game end", r)
+      // this.props.reset()
+    })
+  }
+
+  fetchNewGameQuestions=(round)=>{
+    if (round === 3) {
+      this.endGame()
+    } else {
+      fetch(`http://localhost:3000/game_questions`)
+      .then(r => r.json())
+      .then(r => {
+        let game_questions = r.filter(q => {
+          return this.state.currentGame === q.game_instance_id
+        })
+        this.setState({gameQuestions: game_questions})
+      // .then(r=>{
+      //   this.setQuestion()
+      //   this.answered()
+      // })
+      })
+    }
+  }
+
+  renderGameOver = () => {
+    if (this.state.gameOver === true) {
+      return (
+        <Score />
+      )
+    } else {
+      return(
+        <div>
+        {this.renderGame()}
+        </div>
+      )
+    }
+  }
+
   renderGame=()=>{
     if (this.state.currentGame) {
       return (
@@ -243,6 +296,7 @@ class GameList extends Component {
         setGameOver={this.setGameOver}
         gameOver={this.state.gameOver}
         user={this.props.user}
+        fetchNewGameQuestions={this.fetchNewGameQuestions}
         />
       )
     } else {
@@ -271,7 +325,7 @@ class GameList extends Component {
         channel = {{ channel: 'FeedChannel'}}
         onReceived={data=>this.checkNewGame()}/>
         {this.renderMenu()}
-        {this.renderGame()}
+        {this.renderGameOver()}
       </div>
     );
   }

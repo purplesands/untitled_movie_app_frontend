@@ -10,7 +10,8 @@ class AnswerScreen extends Component {
   }
 
   setAnswers=()=> {
-    let answers = [...this.props.currentAnswers].slice(-4)
+    let answers = [...this.props.currentAnswers]
+    // let answers = [...this.props.currentAnswers].slice(-4)
     // let answers = [...this.props.currentAnswers, this.props.currentQuestion.question]
     // let shuffled = answers.map(x => { return {data: x, srt: Math.random()}})
     // .sort((a,b) => {return a.srt - b.srt})
@@ -70,14 +71,14 @@ class AnswerScreen extends Component {
 
     // set Interval
     this.interval = setInterval(this.fetchInput, 1000);
-    this.interval = setInterval(this.checkRound, 1000);
+    // this.interval = setInterval(this.checkRound, 1000);
   }
 
-  checkRound=()=>{
-    if (this.props.round > this.state.round) {
-      this.setAnswers()
-    }
-  }
+  // checkRound=()=>{
+  //   if (this.props.round > this.state.round) {
+  //     this.setAnswers()
+  //   }
+  // }
 
   componentWillUnmount() {
       // Clear the interval right before component unmount
